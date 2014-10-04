@@ -1,0 +1,241 @@
+//
+//  HomeViewController.m
+//  TrueClaim
+//
+//  Created by krish on 7/19/14.
+//  Copyright (c) 2014 KCSPL. All rights reserved.
+//
+
+#import "HomeViewController.h"
+#import "btnCellView.h"
+#import "claimCellView.h"
+#import <QuartzCore/QuartzCore.h>
+#import "AllConstants.h"
+#import "LinkClaimViewController.h"
+#import "MessageViewController.h"
+#import "RKTabBaseViewController.h"
+#import "IntroViewController.h"
+#import "ApplicationData.h"
+
+@interface HomeViewController ()
+
+@end
+
+@implementation HomeViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+-(void) viewDidAppear:(BOOL)animated
+{
+//    
+//     LinkClaimViewController *linkClaimView = [self.storyboard instantiateViewControllerWithIdentifier:@"LinkClaimViewController"];
+//    self.navController = [[UINavigationController alloc] initWithRootViewController:linkClaimView];
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    [ApplicationData sharedInstance].winViewController = self;
+    self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"ios_background.png"]];
+    themRedColor = Rgb2UIColor(139, 23, 41);
+    self.lblLink.text = @"To get the most from this app \n please link your claim below.";
+}
+-(void) viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:YES];
+    
+    if([ApplicationData sharedInstance].isFirstTime == YES)
+    {
+        IntroViewController *introView = [self.storyboard instantiateViewControllerWithIdentifier:@"IntroViewController"];
+        [self presentViewController:introView animated:NO completion:nil];
+    }
+    
+    self.title = @"Home";
+    self.navigationController.navigationBarHidden = YES;
+    
+    [self setUpViewsForNormalUser];
+    //[self setUpViewsForFirstTimeUser];
+}
+
+# pragma mark -
+# pragma mark UITableView Datasource
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if(tableView == self.tblClaimsView)
+    {
+        return 2; // changin dynamic
+    }
+    
+    return 2;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    if(tableView == self.tblClaimsView)
+    {
+        static NSString *CellIdentifier = @"claimCell";
+        claimCellView *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        
+        cell.backgroundView = [self createViewForNormalClaimCellView];
+        cell.selectedBackgroundView = [self createViewForSelectedClaimCellView];
+        cell.lblClaimNumber.text = @"YOUR CLAIM 346002";
+        return cell;
+    }
+
+
+    if(tableView == self.tblButtonsView)
+    {
+        static NSString *CellIdentifier = @"btnCell";
+        btnCellView *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+        cell.backgroundView = [self createViewForNormalButton];
+        cell.selectedBackgroundView = [self createViewForSelectedButton];
+    
+        if(indexPath.row == 0)
+        {
+            cell.imgType.image = [UIImage imageNamed:@"ios_link_claim_icon.png"];
+            cell.imgType.highlightedImage = [UIImage imageNamed:@"ios_link_first_icon.png"];
+            cell.lblTitle.text = @"LINK TO MY CLAIM";
+        }
+        else if(indexPath.row == 1)
+        {
+            cell.imgType.image = [UIImage imageNamed:@"ios_report_claim_icon.png"];
+            cell.imgType.highlightedImage = [UIImage imageNamed:@"ios_report_claim_icon.png"];
+            cell.lblTitle.text = @"REPORT A NEW CLAIM";
+        }
+        return cell;
+    }
+    
+    return nil;
+}
+
+
+-(UIView*)createViewForNormalClaimCellView
+{
+    UIView *cellView = [[UIView alloc] init];
+    cellView.backgroundColor = [UIColor clearColor];
+    
+    CALayer *sublayer = [CALayer layer];
+    sublayer.backgroundColor = themRedColor.CGColor;
+    sublayer.frame = CGRectMake(0, 5, 279, 70);
+    [cellView.layer addSublayer:sublayer];
+    
+    return cellView;
+}
+
+-(UIView*)createViewForSelectedClaimCellView
+{
+    UIView *selectedView = [[UIView alloc]init];
+    selectedView.backgroundColor = [UIColor clearColor];
+    
+    CALayer *selSublayer = [CALayer layer];
+    selSublayer.backgroundColor = [UIColor whiteColor].CGColor;
+    selSublayer.borderWidth = 1.5;
+    selSublayer.borderColor = themRedColor.CGColor; // change
+    selSublayer.frame = CGRectMake(0, 5, 279, 71);
+    [selectedView.layer addSublayer:selSublayer];
+    return selectedView;
+}
+
+-(UIView*)createViewForNormalButton
+{
+    UIView *cellView = [[UIView alloc] init];
+    cellView.backgroundColor = [UIColor clearColor];
+    
+    CALayer *sublayer = [CALayer layer];
+    sublayer.backgroundColor = [UIColor clearColor].CGColor;
+    sublayer.borderWidth = 1.5;
+    sublayer.borderColor = themRedColor.CGColor; // change
+    sublayer.frame = CGRectMake(0, 5, 279, 70);
+    [cellView.layer addSublayer:sublayer];
+    
+    return cellView;
+}
+
+-(UIView*)createViewForSelectedButton
+{
+    UIView *selectedView = [[UIView alloc]init];
+    selectedView.backgroundColor = [UIColor clearColor];
+    
+    CALayer *selSublayer = [CALayer layer];
+    selSublayer.backgroundColor = themRedColor.CGColor; // change
+    selSublayer.frame = CGRectMake(0, 5, 279, 70);
+    [selectedView.layer addSublayer:selSublayer];
+    return selectedView;
+}
+
+
+#pragma mark -
+#pragma mark UITableView Datasource
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 80.0;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return YES;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    if(tableView == self.tblClaimsView)
+    {
+        RKTabBaseViewController *tabsVC = [[RKTabBaseViewController alloc]init];
+        
+        //[self.navigationController pushViewController:tabsVC animated:YES];
+        [self presentViewController:tabsVC animated:YES completion:nil];
+    }
+    
+    if(tableView == self.tblButtonsView)
+    {
+        LinkClaimViewController *linkClaimView = [self.storyboard instantiateViewControllerWithIdentifier:@"LinkClaimViewController"];
+        
+        [self.navigationController pushViewController:linkClaimView animated:YES];
+    }
+}
+
+-(void)setUpViewsForFirstTimeUser
+{
+    self.lblWelocome.hidden = NO;
+    self.lblLink.hidden = NO;
+    self.tblClaimsView.hidden = YES;
+    
+}
+
+-(void)setUpViewsForNormalUser
+{
+     self.lblWelocome.hidden = YES;
+     self.lblLink.hidden = YES;
+     self.tblClaimsView.hidden = NO;
+    
+    //if 2 cells only
+    self.tblClaimsView.frame = CGRectMake(20, 160, 280, 160);
+    self.tblButtonsView.frame = CGRectMake(20, 350, 280, 160);
+    
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

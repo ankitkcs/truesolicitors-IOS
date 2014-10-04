@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="12F45" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Claim" representedClassName="Claim" syncable="YES">
+        <attribute name="claimsDate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="claimsNumber" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="FAQDetail" representedClassName="FAQDetail" syncable="YES">
+        <attribute name="answer" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="question" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="MassegeDetail" representedClassName="MassegeDetail" syncable="YES">
+        <attribute name="msgAttachment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="msgDate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="msgImage" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="msgText" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="RecordTable" syncable="YES">
+        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="email" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="phoneNumber" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Settings" syncable="YES">
+        <attribute name="password" optional="YES" attributeType="Boolean" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Claim" positionX="-342" positionY="-135" width="128" height="73"/>
+        <element name="MassegeDetail" positionX="-369" positionY="45" width="128" height="103"/>
+        <element name="RecordTable" positionX="-99" positionY="99" width="128" height="105"/>
+        <element name="Settings" positionX="-135" positionY="-42" width="128" height="60"/>
+        <element name="FAQDetail" positionX="-378" positionY="209" width="128" height="73"/>
+    </elements>
+</model>

@@ -1,0 +1,31 @@
+//
+//  TempPassCodeVC.h
+//  TrueClaim
+//
+//  Created by Krish on 22/07/14.
+//  Copyright (c) 2014 KCSPL. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface TempPassCodeVC : UIViewController<UITextFieldDelegate>
+{
+    
+}
+- (IBAction)btnCancel:(id)sender;
+
+@property (strong, nonatomic) IBOutlet UILabel *l1;
+@property (strong, nonatomic) IBOutlet UILabel *l2;
+@property (strong, nonatomic) IBOutlet UILabel *l3;
+@property (strong, nonatomic) IBOutlet UILabel *l4;
+@property (strong, nonatomic) IBOutlet UIImageView *i1;
+@property (strong, nonatomic) IBOutlet UIImageView *i2;
+@property (strong, nonatomic) IBOutlet UIImageView *i3;
+@property (strong, nonatomic) IBOutlet UIImageView *i4;
+@property(nonatomic,readwrite)NSInteger charCounter;
+@property(nonatomic,readwrite)NSInteger nullCharCounter;
+@property(nonatomic,readwrite)BOOL chk;
+@property (strong, nonatomic) UITextField *tempTf;
+- (IBAction)btnSave:(id)sender;
+
+@end

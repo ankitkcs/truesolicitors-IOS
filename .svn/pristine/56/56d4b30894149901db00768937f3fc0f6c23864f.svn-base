@@ -1,0 +1,35 @@
+//
+//  RKPOPViewController.h
+//  TrueClaim
+//
+//  Created by krish on 7/28/14.
+//  Copyright (c) 2014 KCSPL. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "ILTranslucentView.h"
+
+@protocol RKPopDelegate <NSObject>
+-(void) btnOkTappedWithMessage:(NSString*)msg;
+@end
+
+@interface RKPOPViewController : UIViewController
+{
+    
+}
+
+@property(nonatomic,strong) id<RKPopDelegate>Delegate;
+@property(nonatomic,strong) NSString *alertTitle;
+@property(nonatomic,strong) NSString *alertMessage;
+@property(nonatomic,strong) UIImage *alertImage;
+
+@property(nonatomic,retain) IBOutlet ILTranslucentView *blurredView;
+
+@property (nonatomic,strong) IBOutlet UIView *messageBackView;
+@property(nonatomic,retain) IBOutlet UILabel *lblPopUpTitle;
+@property(nonatomic,retain) IBOutlet UIImageView *popUpImageView;
+@property(nonatomic,retain) IBOutlet UILabel *lblPopUpMessage;
+
+- (IBAction)dissmissAlert:(id)sender;
+
+@end

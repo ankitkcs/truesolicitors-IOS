@@ -1,0 +1,57 @@
+//
+//  RKPOPViewController.m
+//  TrueClaim
+//
+//  Created by krish on 7/28/14.
+//  Copyright (c) 2014 KCSPL. All rights reserved.
+//
+
+#import "RKPOPViewController.h"
+#import "AllConstants.h"
+
+@interface RKPOPViewController ()
+
+@end
+
+@implementation RKPOPViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    self.blurredView.translucentAlpha = 1;
+    self.blurredView.translucentTintColor = [UIColor clearColor];
+    self.blurredView.backgroundColor = Rgb2UIColor(230, 230, 230);
+    self.blurredView.translucentStyle = UIBarStyleDefault;
+    
+    self.messageBackView.layer.cornerRadius = 3;
+    self.messageBackView.layer.borderColor = [UIColor colorWithWhite:0.6 alpha:0.2].CGColor;
+    self.messageBackView.layer.borderWidth = 1.0;
+
+    self.lblPopUpTitle.text = self.alertTitle;
+    self.lblPopUpMessage.text = self.alertMessage;
+    self.popUpImageView.image = self.alertImage;
+}
+
+- (IBAction)dissmissAlert:(id)sender
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+    [self.Delegate btnOkTappedWithMessage:@"OK Clicked"];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

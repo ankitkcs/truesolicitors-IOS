@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3396" systemVersion="12F45" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="AboutUsDetails" representedClassName="AboutUsDetails" syncable="YES">
+        <attribute name="infoId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="infoPageDescription" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="infoPageTitle" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isDelete" optional="YES" attributeType="Boolean" syncable="YES"/>
+    </entity>
+    <entity name="CategoryMaster" representedClassName="CategoryMaster" syncable="YES">
+        <attribute name="categoryId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="categoryName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isActive" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="isDelete" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="outletId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="sequenceNo" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="ClientMaster" representedClassName="ClientMaster" syncable="YES">
+        <attribute name="address" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="alterMobileNo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="anniversaryDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="birthDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="clientId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="emailId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="gender" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="imagePath" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="imageUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="mobileNo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="surName" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="IngrediantDetails" representedClassName="IngrediantDetails" syncable="YES">
+        <attribute name="ingrediantId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="ingrediantName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="productId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="MenuMaster" representedClassName="MenuMaster" syncable="YES">
+        <attribute name="isActive" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="isDelete" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="menuId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="menuImageUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="menuName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="menuTitle" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="menuWebUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sequenceNo" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="NotificationMaster" representedClassName="NotificationMaster" syncable="YES">
+        <attribute name="isRead" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="notificationDescription" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="notificationId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="notificationImageUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="notificationTime" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="notificationTitle" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="OrderDetails" representedClassName="OrderDetails" syncable="YES">
+        <attribute name="productId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="productQuantity" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="OrderHistory" representedClassName="OrderHistory" syncable="YES">
+        <attribute name="carTableNo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="couponcode" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="couponValidForMinAmount" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="couponValidFromDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="couponValidInBranchID" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="couponValidToDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="customerMobileNo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="customerName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="deliveryCharge" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="discountedValue" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="discountType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="earnRewardPts" optional="YES" attributeType="Float" defaultValueString="0" syncable="YES"/>
+        <attribute name="isBookedStatus" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="orderBillAmount" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="orderDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="orderId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="orderStatus" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="payRewardPts" optional="YES" attributeType="Float" defaultValueString="0" syncable="YES"/>
+        <attribute name="payRewardPtsStatus" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="totalPrice" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="totalServiceTax" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+    </entity>
+    <entity name="OrderHistoryDetails" representedClassName="OrderHistoryDetails" syncable="YES">
+        <attribute name="orderHistoryDetailsId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="orderId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="productId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="productName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="productPrice" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="productQuantity" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="OutletDetails" representedClassName="OutletDetails" syncable="YES">
+        <attribute name="imageId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="imageUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="outletId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="sequenceNo" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="OutletMaster" representedClassName="OutletMaster" syncable="YES">
+        <attribute name="latitude" optional="YES" attributeType="Float" defaultValueString="0" syncable="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="outletAddress" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="outletContactNo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="outletEmailId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="outletId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="outletName" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="ProductMaster" representedClassName="ProductMaster" syncable="YES">
+        <attribute name="categoryId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="ingrediants" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isActive" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="isDelete" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="isHomeDeliverable" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="outletId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="productId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="productImage" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="productName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="productPrice" optional="YES" attributeType="Float" defaultValueString="0" syncable="YES"/>
+        <attribute name="quantity" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="sequenceNo" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="PromoImageDetails" representedClassName="PromoImageDetails" syncable="YES">
+        <attribute name="isActive" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="isDelete" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="promoImageId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="promoImageUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sequenceNo" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="RewardsMaster" representedClassName="RewardsMaster" syncable="YES">
+        <attribute name="billDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="billNo" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="earnedRewardAmount" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="expiryDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="rewardAmount" optional="YES" attributeType="Float" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="SettingDetails" representedClassName="SettingDetails" syncable="YES">
+        <attribute name="deliveryCharge" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="minOrderAmount" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="serviceTax" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+    </entity>
+    <entity name="ShippingDetails" representedClassName="ShippingDetails" syncable="YES">
+        <attribute name="contactNo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="shippingAddress" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="shippingId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="AboutUsDetails" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="CategoryMaster" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ClientMaster" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="IngrediantDetails" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="MenuMaster" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="NotificationMaster" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="OrderDetails" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="OrderHistory" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="OrderHistoryDetails" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="OutletDetails" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="OutletMaster" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ProductMaster" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="PromoImageDetails" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="RewardsMaster" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SettingDetails" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ShippingDetails" positionX="0" positionY="0" width="0" height="0"/>
+    </elements>
+</model>

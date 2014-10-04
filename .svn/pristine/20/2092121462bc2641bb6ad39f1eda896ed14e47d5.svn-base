@@ -1,0 +1,276 @@
+//
+//  ClaimHistoryViewController.m
+//  TrueClaim
+//
+//  Created by krish on 7/21/14.
+//  Copyright (c) 2014 KCSPL. All rights reserved.
+//
+
+#import "MessageViewController.h"
+#import "messageCellView.h"
+#import "ApplicationData.h"
+#import "AllConstants.h"
+#import "HomeViewController.h"
+#import "WriteMessageViewController.h"
+
+@interface MessageViewController ()
+
+@property (nonatomic, readwrite, weak) IBOutlet UITableView *table;
+@property (nonatomic, readwrite, strong) MNMPullToRefreshManager *pullToRefreshManager;
+@property (nonatomic, readwrite, assign) NSUInteger reloads;
+
+- (void)reloadTableAfterRefresh;
+
+@end
+
+@implementation MessageViewController
+
+//@synthesize table = table_;
+//@synthesize pullToRefreshManager = pullToRefreshManager_;
+//@synthesize reloads = reloads_;
+
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    self.myLocalDataArray = [self createLocalDataArray];
+    
+    [self.table setBackgroundColor:[UIColor clearColor]];
+    
+    self.pullToRefreshManager = [[MNMPullToRefreshManager alloc]
+                             initWithPullToRefreshViewHeight:60.0f
+                             tableView:self.table
+                             withClient:self];
+    
+    UISearchBar *searchBar = [[UISearchBar alloc]initWithFrame:CGRectMake(0, 0, 320, 45)];
+    searchBar.barStyle = UIBarStyleDefault;
+    searchBar.placeholder = @"Search your history";
+    searchBar.showsCancelButton = NO;
+    searchBar.autocorrectionType = UITextAutocorrectionTypeNo;
+    searchBar.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    searchBar.delegate = self;
+    searchBar.barTintColor = [UIColor colorWithWhite:0.8 alpha:0.5];
+    self.table.tableHeaderView = searchBar;
+}
+
+-(void) viewWillAppear:(BOOL)animated
+{
+    
+//    id nav = [UIApplication sharedApplication].keyWindow.rootViewController;
+//    if ([nav isKindOfClass:[UINavigationController class]])
+//    {
+//        UINavigationController *navc = (UINavigationController *) nav;
+//        if(navc.navigationBarHidden)
+//        {
+//            NSLog(@"NOOOO NAV BAR");
+//        } else {
+//            NSLog(@"WE HAVE NAV BAR");
+//        }
+//    }
+    
+    self.navigationController.navigationBarHidden = NO;
+    
+    UIBarButtonItem *noteBarBtn = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCompose target:self action:@selector(newMessageClicked:)];
+    self.navigationItem.rightBarButtonItem = noteBarBtn;
+    
+    UIBarButtonItem *homeBtn  = [[UIBarButtonItem alloc] initWithTitle:@"Home" style:UIBarButtonItemStylePlain target:self action:@selector(goBackToHome)];
+    self.navigationItem.leftBarButtonItem = homeBtn;
+    
+    self.navigationItem.title = @"CLAIM 346002";
+    self.tabBarItem.title = @"Message";
+    
+    [ApplicationData sharedInstance].isDisply_PassCodeScreen = YES;
+}
+
+-(IBAction)newMessageClicked:(id)sender
+{
+    WriteMessageViewController *newMsgView = [self.storyboard instantiateViewControllerWithIdentifier:@"WriteMessageViewController"];
+    [self presentViewController:newMsgView animated:YES completion:nil];
+}
+
+-(IBAction)btnHomeClick:(id)sender
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void) goBackToHome
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark -
+#pragma mark Aux view methods
+
+- (void)reloadTableAfterRefresh
+{
+    [self.table reloadData];
+    [self.pullToRefreshManager tableViewReloadFinishedAnimated:YES];
+}
+
+#pragma mark -
+#pragma mark UITableViewDataSource
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+	return 1;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    static NSString *CellIdentifier = @"MessageCell";
+    messageCellView *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    NSDictionary *msgDetails = [self.myLocalDataArray objectAtIndex:indexPath.row];
+    
+    NSLog(@"MSG DETAILS : %@",msgDetails);
+    
+    cell.backgroundColor = [UIColor whiteColor];
+    
+    cell.logoImageView.image = [UIImage imageNamed:[msgDetails valueForKey:@"msgImageName"]];
+    cell.lblDate.text = [msgDetails valueForKey:@"msgDate"];
+    
+    CGRect lblMessageFrame = cell.lblMesaage.frame;
+    lblMessageFrame.size.height = [self dyanmicHeightForlabelText:[msgDetails valueForKey:@"msgText"]]+5;
+	cell.lblMesaage.frame = lblMessageFrame;
+    
+    cell.lblMesaage.numberOfLines = 0;
+    cell.lblMesaage.lineBreakMode = NSLineBreakByWordWrapping;
+    cell.lblMesaage.text = [msgDetails valueForKey:@"msgText"];
+    
+    return cell;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    //return 5 + (5 * self.reloads);
+    return [self createLocalDataArray].count;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    CGFloat cellHeight = 0;
+    NSDictionary *msgDetails = [self.myLocalDataArray objectAtIndex:indexPath.row];
+    cellHeight = 60 + [self dyanmicHeightForlabelText:[msgDetails valueForKey:@"msgText"]] + 10;
+    return cellHeight;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+
+
+-(CGFloat) dyanmicHeightForlabelText:(NSString*)commentText
+{
+    CGSize size;
+    NSString *str = commentText;
+    
+    if (IS_IOS7_OR_PLUS)
+    {
+        NSDictionary *attributesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[UIFont systemFontOfSize:16.0], NSFontAttributeName, nil];
+        
+        CGRect frame = [str boundingRectWithSize:CGSizeMake(300, 1000) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributesDictionary context:nil];
+        
+        size = frame.size;
+    }
+    else
+    {
+        size = [str sizeWithFont:[UIFont systemFontOfSize:14.0] constrainedToSize:CGSizeMake(300, 1000) lineBreakMode:NSLineBreakByWordWrapping];
+    }
+    
+    NSLog(@"DYNAMIC HEIGHT BY TEXT : %0.f",size.height);
+    return size.height;
+}
+
+
+#pragma mark -
+#pragma mark MNMBottomPullToRefreshManager Delegates
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    [self.pullToRefreshManager tableViewScrolled];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    [self.pullToRefreshManager tableViewReleased];
+}
+
+- (void)pullToRefreshTriggered:(MNMPullToRefreshManager *)manager
+{
+    //self.reloads++;
+    [self performSelector:@selector(reloadTableAfterRefresh) withObject:nil afterDelay:1.0f];
+    self.table.frame = CGRectMake(0, 65, self.table.bounds.size.width, self.table.bounds.size.height);
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+-(NSArray*) createLocalDataArray
+{
+    
+    NSMutableArray *myDataArray = [[NSMutableArray alloc] init];
+    
+    NSDictionary *msgDict1 = @{
+                               @"msgDate" : @"Today,11:23 AM",
+                               @"msgImageName" : @"ios_true_logoCell.png",
+                               @"msgText" : @"You can claim compensation for any out of pocket expenses you have incurred but you mus provide me with supporting documentry evidence (receipts,invoices etc) for each loss claimed.I have sent you a letter setting out what information i need and have posted a copy for you to read Loc Docs.",
+                               @"Attachment" : @"Y"
+                               };
+
+    NSDictionary *msgDict2 = @{
+                                 @"msgDate" : @"Yesterday,3:13 PM",
+                                 @"msgImageName" : @"ios_user_icon.png",
+                                 @"msgText" : @"Thank you for the last later,can somebody please call me back ASAP? \n\n I would like to discuss it further.",
+                                 @"Attachment" : @"N"
+                                 };
+    NSDictionary *msgDict3 = @{
+                               @"msgDate" : @"Tues,Feb 28, 11.23 AM",
+                               @"msgImageName" : @"ios_true_logoCell.png",
+                               @"msgText" : @"Good news! The other party has accepted your\
+                                 offer. In accordeance with the court rules they should\
+                                   now send your settlement cheque within 4 working days.",
+                               @"Attachment" : @"N"
+                               };
+    
+    NSDictionary *msgDict4 = @{
+                               @"msgDate": @"Fri,Feb 24, 12.03 AM",
+                               @"msgImageName" : @"ios_user_icon.png",
+                               @"msgText" : @"Good news! The other party has accepted your\
+                                   offer. In accordeance with the court rules they should\
+                                   now send your settlement cheque within 4 working days.",
+                               @"Attachment" : @"N"
+                               };
+    
+    NSDictionary *msgDict5 = @{
+                               @"msgDate": @"Mon,Jan 30, 10.10 PM",
+                               @"msgImageName" : @"Message.png",
+                               @"msgText" : @"MyMessage",
+                               @"Attachment" : @"N"
+                               };
+
+    [myDataArray addObject:msgDict1];
+    [myDataArray addObject:msgDict2];
+    [myDataArray addObject:msgDict3];
+    [myDataArray addObject:msgDict4];
+    [myDataArray addObject:msgDict5];
+    
+    return myDataArray;
+}
+
+@end

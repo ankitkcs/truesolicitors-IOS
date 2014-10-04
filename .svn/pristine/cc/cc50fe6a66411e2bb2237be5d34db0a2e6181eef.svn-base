@@ -1,0 +1,80 @@
+
+#import "RKTabBaseViewController.h"
+#import "MessageViewController.h"
+#import "MyFolderViewController.h"
+#import "FAQViewController.h"
+#import "MoreViewController.h"
+#import "AppConstants.h"
+#import "HomeViewController.h"
+
+@implementation RKTabBaseViewController
+
+- (void)viewDidLoad
+{
+     [super viewDidLoad];
+    
+        self.tabBar.tintColor = Rgb2UIColor(139, 23, 41);
+    
+        UIViewController *view1 = [[UIViewController alloc] init];
+        UIViewController *view2 = [[UIViewController alloc] init];
+        UIViewController *view3 = [[UIViewController alloc] init];
+        UIViewController *view4 = [[UIViewController alloc] init];
+    
+        UIStoryboard *mystoryboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    
+        MessageViewController *messageHistoryView = [mystoryboard instantiateViewControllerWithIdentifier:@"MessageViewController"];
+    
+        MyFolderViewController *myFolderView = [mystoryboard instantiateViewControllerWithIdentifier:@"MyFolderViewController"];
+    
+        FAQViewController *faqView = [mystoryboard instantiateViewControllerWithIdentifier:@"FAQViewController"];
+    
+        MoreViewController *moreView = [mystoryboard instantiateViewControllerWithIdentifier:@"MoreViewController"];
+    
+        UINavigationController *messageNav = [[UINavigationController alloc] initWithRootViewController:messageHistoryView]; // push home view default
+        //[messageNav pushViewController:messageHistoryView animated:NO];
+         messageNav.navigationBar.tintColor = Rgb2UIColor(139, 23, 41);
+         messageNav.navigationBar.backItem.title = @"Home";
+    
+    UINavigationController *myFolderNav = [[UINavigationController alloc] initWithRootViewController:myFolderView]; // push home view default
+//        [myFolderNav pushViewController:myFolderView animated:NO];
+        myFolderNav.navigationBar.tintColor = Rgb2UIColor(139, 23, 41);
+        myFolderNav.navigationBar.backItem.title = @"Home";
+
+        view1 = messageNav;
+        view2 = myFolderNav;
+        view3 = faqView;
+        view4 = moreView;
+    
+        NSMutableArray *tabViewControllers = [[NSMutableArray alloc] init];
+        [tabViewControllers addObject:view1];
+        [tabViewControllers addObject:view2];
+        [tabViewControllers addObject:view3];
+        [tabViewControllers addObject:view4];
+    
+        // add all view controller to tabview controllers
+        [self setViewControllers:tabViewControllers];
+    
+    view1.tabBarItem.title = @"Message";
+    view1.tabBarItem.image = [UIImage imageNamed:@"ios_messages_icon.png"];
+    view1.tabBarItem.selectedImage = [UIImage imageNamed:@"ios_messages_coloured_icon.png"];
+
+    view2.tabBarItem.title = @"MyFolder";
+    view2.tabBarItem.image = [UIImage imageNamed:@"ios_my_folder_icon.png"];
+    view2.tabBarItem.selectedImage = [UIImage imageNamed:@"ios_my_folder_coloured_icon.png"];
+
+    view3.tabBarItem.title = @"FAQ's";
+    view3.tabBarItem.image = [UIImage imageNamed:@"ios_info_icon.png"];
+    view3.tabBarItem.selectedImage = [UIImage imageNamed:@"ios_info_coloured_icon.png"];
+    
+    view4.tabBarItem.title = @"More";
+    view4.tabBarItem.image = [UIImage imageNamed:@"ios_more_icon.png"];
+    view4.tabBarItem.selectedImage = [UIImage imageNamed:@"ios_more_coloured_icon.png"];
+    
+}
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+  return YES;
+}
+
+@end

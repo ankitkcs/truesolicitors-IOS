@@ -1,0 +1,22 @@
+//
+//  HomeViewController.h
+//  TrueClaim
+//
+//  Created by krish on 7/19/14.
+//  Copyright (c) 2014 KCSPL. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface HomeViewController : UIViewController
+{
+    UIColor *themRedColor;
+}
+@property(nonatomic,weak) IBOutlet UILabel *lblWelocome;
+@property(nonatomic,weak) IBOutlet UILabel *lblLink;
+@property(nonatomic,weak) IBOutlet UITableView *tblButtonsView;
+@property(nonatomic,weak) IBOutlet UITableView *tblClaimsView;
+
+@property(nonatomic,strong) UINavigationController *navController;
+
+@end

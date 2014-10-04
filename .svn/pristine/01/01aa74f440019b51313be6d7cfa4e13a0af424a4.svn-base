@@ -1,0 +1,916 @@
+//
+//  WebApiRequest.m
+//  CoreTalk
+//
+//  Created by Krish on 15/04/13.
+//  Copyright (c) 2013 KCS. All rights reserved.
+//
+//  Soap Client
+
+#import "WebApiRequest.h"
+#import "AllConstants.h"
+#import "ApplicationData.h"
+//#import "AppDelegate.h"
+#import "JSON.h"
+
+@interface Connection : NSObject<NSXMLParserDelegate>
+{
+	NSMutableData *receivedData; // Response data for URLRequest
+    
+	id delegate; // dynamic type
+	int tagValue;
+	
+    id object; // class object with dynamic type
+    id childObject;
+    id subChildObject;
+    
+    NSString *rootTag; // Represents the RootTag in XML Response
+    NSString *classTag; // Represents the ClassTag in XML Response
+    NSString *childTag; // Represents the ChildTag in XML Response
+    NSString *subChildTag; // Represents the SubChildTag in XML Response
+    
+	NSURLConnection *urlConnection; // connection object
+	NSURLResponse *response;// response object
+    
+	NSString *errorMsg; // Error Message
+//    NSMutableArray *arrItems;
+    
+    NSMutableString *contentNode;
+    NSMutableString *contentString;
+    
+    int currentTag;
+    BOOL isChildNode;
+    BOOL isSubChildNode;
+    
+    //saurabh 27-05-13
+    BOOL cancelled;
+    BOOL finished;
+}
+
+@property(nonatomic,strong) NSMutableData *receivedData;
+
+@property(nonatomic,strong) NSURLResponse *response;
+@property(nonatomic,strong) NSString *errorMsg;
+@property(nonatomic,strong) NSString *rootTag;
+@property(nonatomic,strong) NSString *classTag;
+@property(nonatomic,strong) NSString *childTag;
+@property(nonatomic,strong) NSString *subChildTag;
+@property(nonatomic,copy) id delegate;
+@property(nonatomic,strong) NSURLConnection *urlConnection;
+
+@property(nonatomic,strong) NSMutableString *contentNode;
+@property(nonatomic,strong) NSMutableString *contentString;
+//@property(nonatomic,strong) NSMutableArray *arrItems;
+
+//saurabh 27-05-13
+@property(nonatomic,readwrite) BOOL cancelled;
+@property(nonatomic,readwrite) BOOL finished;
+
+//saurabh 11-07-13
+@property (nonatomic,readwrite) BOOL isParserError;
+@property (nonatomic,strong) NSMutableURLRequest *request;
+@property (nonatomic,readwrite) int requestCount;
+
+@property (nonatomic,retain) NSMutableArray *arrResponseData;
+
+-(id)initWithRequest:(NSMutableURLRequest *)request withDelegate:(id)delegate1 tag:(int)Tag;
+-(void)setData:(id)responseData :(NSString *)ErrorMsg withDelegate:(id)Delegate andTag:(int)Tag;
+
+@end
+
+#pragma mark -
+#pragma mark Connection Class implementation
+
+@implementation Connection
+
+@synthesize receivedData;
+
+@synthesize errorMsg;
+@synthesize urlConnection;
+@synthesize response;
+@synthesize rootTag;
+@synthesize classTag;
+@synthesize childTag;
+@synthesize subChildTag;
+@synthesize delegate;
+
+@synthesize contentNode;
+@synthesize contentString;
+//@synthesize arrItems;
+
+//saurabh 27-05-13
+@synthesize cancelled;
+@synthesize finished;
+
+#pragma mark -
+#pragma mark NSURLConnection delegate methods
+
+// initialize request
+
+-(id)initWithRequest:(NSMutableURLRequest *)request withDelegate:(id)delegate1 tag:(int)Tag
+{
+	@try
+	{
+        self.request = request;
+		tagValue = Tag;
+		delegate = delegate1;
+		errorMsg = @"";
+        
+        currentTag = Tag;
+
+        self.requestCount = 1;
+		urlConnection = [[NSURLConnection alloc]initWithRequest:request delegate:self startImmediately:NO];
+		self.receivedData = [NSMutableData data];
+		response = nil;
+		[urlConnection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+		[urlConnection start];
+		return self;
+	}
+	@catch (NSException * e)
+	{
+	}
+	return nil;
+}
+
+// Receiving the Response from the server side.
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response1
+{
+	self.response = response1;
+}
+
+
+// Receioving Data from the server side.
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+	@try
+	{
+		if (!receivedData)
+		{
+			receivedData = [[NSMutableData alloc]initWithData:data];
+		}
+		else
+		{
+			[receivedData appendData:data];
+		}
+	}
+	@catch (NSException * e)
+	{
+	}
+}
+
+
+// Finishing of Loading data from the server side.
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    @try
+	{
+        //NSLog(@"in connectionDidFinishLoading");
+        @synchronized(self) {
+            if (!cancelled) {
+                finished = YES;
+                [urlConnection unscheduleFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+                if (receivedData !=nil)
+                {
+                    NSString *stringData = [[NSString alloc] initWithData:receivedData encoding:NSASCIIStringEncoding];
+                    
+                    NSLog(@"Ranjit Response : '%@'",stringData);
+                    
+                    NSDictionary *responseJSON = [stringData JSONValue];
+                    
+                    [delegate setData:responseJSON :errorMsg withDelegate:delegate andTag:tagValue];
+                    
+                }
+            }
+        }
+	}
+	@catch (NSException * e)
+	{
+	}
+}
+
+
+// WebApiRequest Delegate method to each calling controller
+
+-(void)setData:(NSMutableArray *)responseData :(NSString *)ErrorMsg withDelegate:(id)Delegate andTag:(int)Tag
+{
+	[delegate setData:responseData :errorMsg withDelegate:delegate andTag:tagValue];
+}
+
+
+// Failure in connection from server or the internet
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+	@try
+	{
+        NSDictionary *dict = [error userInfo];
+        errorMsg = [dict valueForKey:@"NSLocalizedDescription"];
+        //NSLog(@"errorMsg %@",errorMsg);
+        
+        if (self.requestCount <= 2) {
+            self.requestCount++;
+            urlConnection = [[NSURLConnection alloc]initWithRequest:self.request delegate:self startImmediately:NO];
+            self.receivedData = [NSMutableData data];
+            response = nil;
+            [urlConnection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+            [urlConnection start];
+        }
+        else {
+            [delegate setData:nil :errorMsg withDelegate:delegate andTag:tagValue];
+        }
+	}
+	@catch (NSException * e)
+	{
+	}
+}
+
+- (void)cancelAsyncDownload
+{
+    //	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
+	@try
+	{
+		if (urlConnection !=nil) {
+			[urlConnection cancel];
+		}
+		receivedData = nil;
+	}
+	@catch (NSException * e)
+	{
+	}
+    //	[pool release];
+}
+
+#pragma mark -
+#pragma mark NSXMLParser Delegate Methods
+
+
+- (void)parserDidStartDocument:(NSXMLParser *)parser
+{
+    //dharmesh 24-12-12
+    //added if/else
+    //NSLog(@"%@",self.arrResponseData);
+    if (self.arrResponseData) {
+        [self.arrResponseData removeAllObjects];
+    }
+    else
+    {
+        self.arrResponseData = nil;
+        self.arrResponseData = [[NSMutableArray alloc]init];
+    }
+}
+
+// sent when the parser begins parsing of the document.
+- (void)parserDidEndDocument:(NSXMLParser *)parser
+{
+    
+}
+
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName
+  namespaceURI:(NSString *)namespaceURI
+ qualifiedName:(NSString *)qName
+    attributes:(NSDictionary *)attributeDict
+{
+    
+    if ([elementName isEqualToString:rootTag]) {
+        contentString = [[NSMutableString alloc]init];
+    }
+    /*
+    if (![elementName isEqualToString:rootTag])
+    {
+        if ([elementName isEqualToString:classTag])
+        {
+            object = [[NSClassFromString(classTag) alloc]init];
+            //isSetDevice = NO;
+        }
+        else if ([elementName isEqualToString:childTag]) {
+            childObject = [[NSClassFromString(childTag) alloc] init];
+            isChildNode = YES;
+        }
+        else if ([elementName isEqualToString:subChildTag]) {
+            subChildObject = [[NSClassFromString(subChildTag) alloc] init];
+            isSubChildNode = YES;
+        }
+        else
+        {
+            contentNode = [elementName copy];
+            contentString = [[NSMutableString alloc]init];
+        }
+    }
+     */
+}
+
+- (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string
+{
+//    //NSLog(@"st %@",string);
+    [contentString appendString:string];
+}
+
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI
+ qualifiedName:(NSString *)qName0
+{
+//    NSString *stringData;
+    NSDictionary *responseJSON;
+    if ([elementName isEqualToString:rootTag])
+    {
+
+//        switch (currentTag) {
+//            case GET_CATEGORY:
+                responseJSON = [contentString JSONValue];
+                [self.arrResponseData addObject:responseJSON];
+//                break;
+//        }
+    }
+}
+
+- (void)parser:(NSXMLParser *)parser parseErrorOccurred:(NSError *)parseError
+{
+    self.isParserError = TRUE;
+    NSDictionary *dict = [parseError userInfo];
+    errorMsg = [dict valueForKey:@"NSLocalizedDescription"];
+    [delegate setData:nil :errorMsg withDelegate:delegate andTag:tagValue];
+}
+
+// ...and this reports a fatal error to the delegate. The parser will stop parsing.
+- (void)parser:(NSXMLParser *)parser validationErrorOccurred:(NSError *)validationError
+{
+    self.isParserError = TRUE;
+    NSDictionary *dict = [validationError userInfo];
+    errorMsg = [dict valueForKey:@"NSLocalizedDescription"];
+    [delegate setData:nil :errorMsg withDelegate:delegate andTag:tagValue];
+}
+
+@end
+
+#pragma mark -
+#pragma mark WebApiRequest Class implementation
+@implementation WebApiRequest {
+    id mdelegate;
+    int TagValue;
+    Connection *conn;
+    NSString *username;
+    NSString *password;
+    BOOL isParserError;
+}
+
+//    [self.webApiRequest performServerTaskWithRequest:[[NSDictionary dictionaryWithObject:arrTemp forKey:@"setConfirmMyOrder"] mutableCopy] orParameter:nil Delegate:self forRequestType:ACT_SET_CONFIRM_MY_ORDER withTag:SET_CONFIRM_MY_ORDER];
+
+
+-(void)performServerTaskWithRequest:(NSMutableDictionary *)requestDict orParameter:(NSMutableDictionary*)paramDict Delegate:(NSObject *)delegate forRequestType:(NSString *)requestType withTag:(int)tag
+{
+    
+    //NSLog(@"Parm Dict : %@ ",paramDict);
+    
+    NSLog(@"Request Dictionary : %@",requestDict);
+    
+	@try
+	{
+//        [self cancelAsyncDownload];
+        NSMutableURLRequest *request;
+        if (requestDict)
+        {
+            NSLog(@"requestDict123 %@",requestDict);
+            request = [WebApiRequest buildMutableUrlRequest:[NSString stringWithFormat:@"json=%@",[requestDict JSONRepresentation]] withUrl:[NSURL URLWithString:[NSString stringWithFormat:APP_SERVER_URL,requestType]]];
+        }
+        else
+        {
+            NSString *strParam = [[NSString alloc] init];
+            strParam = @"";
+            NSArray *arrKays = [paramDict allKeys];
+            for (int i=0; i<[arrKays count]; i++) {
+                strParam = [strParam stringByAppendingString:[NSString stringWithFormat:@"&%@=%@",[arrKays objectAtIndex:i],[paramDict valueForKey:[arrKays objectAtIndex:i]]]];
+            }
+            NSString *requestUrl = [[NSString stringWithFormat:APP_SERVER_URL,requestType] stringByAppendingString:strParam];
+            
+            NSLog(@"requestUrl %@",requestUrl);
+            
+//            NSString *protectedUrl = ( NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,( CFStringRef)requestUrl, NULL, (CFStringRef)@"!*'\"();:@&=+$,/?%#[]% ",CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)));
+            
+            NSString *protectedUrl = ( NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,( CFStringRef)requestUrl, NULL, (CFStringRef)@" ",CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)));
+            
+            NSLog(@"protectedUrl %@",protectedUrl);
+            
+            request = [WebApiRequest buildMutableUrlRequest:nil withUrl:[NSURL URLWithString:protectedUrl]];
+        }
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:tag];
+	}
+	@catch (NSException * e)
+	{
+	}
+}
+
+-(id)performServerTask:(NSMutableDictionary *)requestDict withFileData:(NSData *)fileData andFileName:(NSString *)fileName andFileFieldName:(NSString*)fileFieldName delegate:(NSObject *)delegate forRequestType:(NSString *)requestType withTag:(int)tag
+{
+    id retval = nil;
+    //NSLog(@"Request Json: \n%@", requestDict);
+    //NSLog(@"Request URL: \n%@", [NSString stringWithFormat:APP_SERVER_URL,requestType]);
+    @try {
+        //request
+        
+        NSMutableDictionary *postVariables = [[NSMutableDictionary alloc] init];
+        
+        [postVariables setValue:[NSString stringWithFormat:@"%@", [requestDict JSONRepresentation]] forKey:@"data"];
+        
+        
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+        [request setURL: [NSURL URLWithString:[NSString stringWithFormat:APP_SERVER_URL,requestType]]];
+        
+        [request setHTTPMethod:@"POST"];
+        NSString *boundary = @"---------------------------14737809831466499882746641449";
+        NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@",boundary];
+        [request addValue:contentType forHTTPHeaderField: @"Content-Type"];
+        
+        //POST body
+        NSMutableData *postbody = [NSMutableData data];
+        
+        //append string data
+        
+        //NSLog(@"POSTDATA:%@",[NSString stringWithFormat:@"data=%@",[requestDict JSONRepresentation]]);
+        //[postbody appendData:[[NSString stringWithFormat:@"data=%@",[requestDict JSONRepresentation]] dataUsingEncoding:NSUTF8StringEncoding]];
+        
+        
+//        [postBody appendData:[[NSString stringWithFormat:@"--%@\r\n", stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
+//        [postBody appendData:[@"Content-Disposition: form-data; name=\"media\"; filename=\"fish.jpg\"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+//        [postBody appendData:[@"Content-Type: image/jpeg\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+//        [postBody appendData:[@"Content-Transfer-Encoding: binary\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        
+        //append file
+        [postbody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n",boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+        [postbody appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"%@\"\r\n",fileFieldName, fileName] dataUsingEncoding:NSUTF8StringEncoding]];
+        [postbody appendData:[@"Content-Type: application/octet-stream\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [postbody appendData:[NSData dataWithData:fileData]];
+        [postbody appendData:[WebApiRequest createFormData:postVariables withBoundary:boundary]];
+        [postbody appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n",boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+        [request setHTTPBody:postbody];
+        
+        //set content length
+        NSString *postLength = [NSString stringWithFormat:@"%d", [postbody length]];
+        [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
+        
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:tag];
+        
+        //        NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
+        //        if ([responseData length] > 0) {
+        //            NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSASCIIStringEncoding];
+        //            retval = [responseString JSONValue];
+        //
+        //            //NSLog(@"LogError Response String: %@",responseString);
+        //            //NSLog(@"LogError Response: %@",retval);
+        //        }
+        
+    }
+    @catch (NSException *exception) {
+        retval = nil;
+    }
+    return retval;
+}
+
++ (NSData*)createFormData:(NSDictionary*)myDictionary withBoundary:(NSString*)myBounds {
+    
+    NSMutableData *myReturn = [[NSMutableData alloc] init];
+    
+    NSArray *formKeys = [myDictionary allKeys];
+    for (int i = 0; i < [formKeys count]; i++) {
+        [myReturn appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n",myBounds] dataUsingEncoding:NSASCIIStringEncoding]];
+        [myReturn appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n%@\r\n",[formKeys objectAtIndex:i],[myDictionary valueForKey:[formKeys objectAtIndex:i]]] dataUsingEncoding:NSASCIIStringEncoding]];
+    }
+    
+    return myReturn;
+}
+
+
+/*
+-(id)performServerTaskSync:(NSMutableDictionary *)requestDict withRequestType:(NSString *)_typeRequest
+{
+    id retval = nil;
+	@try
+	{
+		NSMutableURLRequest *request = [WebApiRequest buildMutableUrlRequest:[NSString stringWithFormat:@"data=%@",[requestDict JSONRepresentation]] withUrl:[NSURL URLWithString:[NSString stringWithFormat:APP_SERVER_URL,_typeRequest]]];
+        
+        NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
+        if ([responseData length] > 0) {
+            NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSASCIIStringEncoding];
+            //            NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+            retval = [responseString JSONValue];
+            
+            //NSLog(@"LogError Response String: %@",responseString);
+            //NSLog(@"LogError Response: %@",retval);
+        }
+	}
+	@catch (NSException * e)
+	{
+        retval = nil;
+	}
+    return retval;
+}
+*/
+
+/*
+
+-(void) getAboutEGWithDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_GET_ABOUT_EG ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:@"%@",fileContent];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_GET_ABOUT_EG];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) getAllCategoryWithDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_GET_CATEGORY ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:@"%@",fileContent];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_GET_CATEGORY];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) getMySizeForMobileNo:(NSString*)mobileNo withDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_GET_MY_SIZE ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,mobileNo];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_GET_MY_SIZE];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) getProductFormDate:(NSDate*)date withDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_GET_PRODUCT ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        NSString *dateTime = [DATETIME_FORMATTER_WS_NEW stringFromDate:date];
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,dateTime];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_GET_PRODUCT];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) getProfileForMobileNo:(NSString*)mobileNo withDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_GET_PROFILE ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,mobileNo];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_GET_PROFILE];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) getSizeChart:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_GET_SIZE_CHART ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:@"%@",fileContent];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_GET_SIZE_CHART];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) getColor:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_GET_COLOR ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:@"%@",fileContent];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_GET_COLOR];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) getContactUs:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_GET_CONTECT_US ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:@"%@",fileContent];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_GET_CONTECT_US];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) getGeneralStatus:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_GET_GENERAL_STATUS ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *dateTime = [DATETIME_FORMATTER_WS_NEW stringFromDate:[ApplicationData sharedInstance].serverDateTime];
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,dateTime,[ApplicationData sharedInstance].mobileNo,[ApplicationData returnTimeZoneDifference]];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_GET_GENERAL_STATUS];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) setAssociateFor:(NSString*)associateFor Name:(NSString*)name MobileNo:(NSString*)mobileNo EmailID:(NSString*)emailID Description:(NSString*)description withDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_SET_ASSOCIATE ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,associateFor,name,mobileNo,emailID,description];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_SET_ASSOCIATE];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) setCallDataForMobileNo:(NSString*)mobileNo ProductID:(NSString*)productID SizeID:(NSString*)sizeID ColorID:(NSString*)colorID IsCallFromClient:(NSString*)isCallFromClient NeedRemeasurement:(NSString*)needRemeasurement withDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_SET_CALL_DATA ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,mobileNo,productID,sizeID,colorID,isCallFromClient,needRemeasurement];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_SET_CALL_DATA];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) setProfileForMobileNo:(NSString*)mobileNo ProfileArray:(NSMutableArray*)profileArray withDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_SET_PROFILE ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,mobileNo,[profileArray JSONRepresentation]];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_SET_PROFILE];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) setRegistrationForMobileNo:(NSString*)mobileNo andCountryCode:(NSString*)countryCode withDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_SET_REGISTRATION ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,mobileNo,countryCode];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_SET_REGISTRATION];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+//jaimin 9-12-13
+-(void) setTokenIdForMobileNo:(NSString*)mobileNo withDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_SET_TOKENID ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,mobileNo,[NSString stringWithFormat:@"%d",DEVICE_TYPE_ID],([[NSUserDefaults standardUserDefaults] valueForKey:DEVICE_TOKEN]?[[NSUserDefaults standardUserDefaults] valueForKey:DEVICE_TOKEN]:@""),@""];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_SET_TOKENID];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+//
+
+-(void) setCommentsWithComments:(NSString*)comments forProductID:(NSString*)productID withDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_SET_COMMENTS ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,[ApplicationData sharedInstance].mobileNo,comments,productID];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_SET_COMMENTS];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+-(void) verifyLoginForMobileNo:(NSString*)mobileNo VerificationCode:(NSString*)verificationCode TokenID:(NSString*)tokenid withDelegate:(id)delegate andTag:(NSInteger)tag {
+    @try {
+        NSString *filePath = [[NSBundle mainBundle]pathForResource:ACT_VERIFY_LOGIN ofType:@"xml"];
+        NSString *fileContent = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        
+        NSString *strServiceParameter = [NSString stringWithFormat:fileContent,mobileNo,verificationCode,[NSString stringWithFormat:@"%d",DEVICE_TYPE_ID],([[NSUserDefaults standardUserDefaults] valueForKey:DEVICE_TOKEN]?[[NSUserDefaults standardUserDefaults] valueForKey:DEVICE_TOKEN]:@"")];
+        //NSLog(@"%@",strServiceParameter);
+        
+        NSMutableURLRequest *request = [self BuildMutableRequest:strServiceParameter andAction:ACT_VERIFY_LOGIN];
+        conn = [[Connection alloc]initWithRequest:request withDelegate:delegate tag:(int)tag];
+        filePath = nil;
+        fileContent = nil;
+        strServiceParameter = nil;
+        request = nil;
+    }
+    @catch (NSException * e)
+	{
+        
+	}
+}
+
+*/
+
++(NSMutableURLRequest *)buildMutableUrlRequest:(NSString *)soapMessage withUrl:(NSURL *)url
+{
+	NSMutableURLRequest *theRequest = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0f];
+    if (soapMessage)
+    {
+        
+        NSString *protectedUrl = ( NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,( CFStringRef)soapMessage, NULL, (CFStringRef)@"&",CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)));
+        
+//        NSString *msgLength = [NSString stringWithFormat:@"%d", [soapMessage length]];
+//        [theRequest addValue: msgLength forHTTPHeaderField:@"Content-Length"];
+//        [theRequest setHTTPMethod:@"POST"];
+//        [theRequest setTimeoutInterval:300.0f];
+//        [theRequest setHTTPBody: [soapMessage dataUsingEncoding:NSASCIIStringEncoding]];
+//        msgLength = nil;
+        
+        NSString *msgLength = [NSString stringWithFormat:@"%d", [protectedUrl length]];
+        [theRequest addValue: msgLength forHTTPHeaderField:@"Content-Length"];
+        [theRequest setHTTPMethod:@"POST"];
+        [theRequest setTimeoutInterval:300.0f];
+        [theRequest setHTTPBody: [protectedUrl dataUsingEncoding:NSASCIIStringEncoding]];
+        msgLength = nil;
+        
+    }
+	return theRequest;
+}
+
+-(NSMutableURLRequest *)BuildMutableRequest:(NSString *)soapMessage andAction:(NSString *)soapAction
+{
+    
+    //NSLog(@"url %@",APP_SERVER_URL);
+    
+    NSMutableURLRequest *theRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:APP_SERVER_URL]];
+    [theRequest setTimeoutInterval:3000.0f];
+    NSString *msgLength = [NSString stringWithFormat:@"%d",[soapMessage length]];
+    [theRequest addValue:@"text/xml" forHTTPHeaderField:@"Content-Type"];
+//    [theRequest addValue:[NSString stringWithFormat:SOAP_ACTION,soapAction] forHTTPHeaderField:@"SOAPAction"];
+    [theRequest addValue:msgLength forHTTPHeaderField:@"Content-Length"];
+    [theRequest setHTTPMethod:@"POST"];
+    [theRequest setHTTPBody:[soapMessage dataUsingEncoding:NSUTF8StringEncoding]];
+    return theRequest;
+}
+
+// For cancelling urlconnection request using connection object
+-(void) cancelAsyncDownload
+{
+	@try
+	{
+        //NSLog(@"Inside cancel download");
+        @synchronized(conn)
+        {
+            if (!conn.finished)
+            {
+                conn.cancelled = YES;
+                if (conn != nil) {
+                    [conn cancelAsyncDownload];
+                }
+            }
+        }
+	}
+	@catch (NSException * e)
+	{
+        // throws exception
+	}
+}
+
+@end
