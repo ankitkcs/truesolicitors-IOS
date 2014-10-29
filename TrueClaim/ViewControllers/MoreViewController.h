@@ -10,4 +10,9 @@
 
 @interface MoreViewController : UITableViewController
 
+-(IBAction)aboutTrueClick:(id)sender;
+-(IBAction)whyTrueClick:(id)sender;
+-(IBAction)injuryTypeClick:(id)sender;
+
+
 @end

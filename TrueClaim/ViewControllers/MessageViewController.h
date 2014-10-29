@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "SVPullToRefresh.h"
+#import "linkToClaim.h"
 
 @interface MessageViewController : UITableViewController
 <
@@ -23,9 +24,11 @@ UISearchDisplayDelegate
 @property(nonatomic,strong) NSMutableArray *allMessages;
 @property(nonatomic,strong) NSMutableArray *filteredMessages;
 
-@property (strong,nonatomic) UIView *myRefreshView;
+@property (nonatomic,strong) UIView *myRefreshView;
+@property (nonatomic,strong) WebApiRequest *webApi;
+@property (strong,nonatomic) LinkToClaim *selClaim;
 
--(IBAction)btnHomeClick:(id)sender;
--(IBAction)newMessageClicked:(id)sender;
+//-(IBAction)btnHomeClick:(id)sender;
+//-(IBAction)newMessageClicked:(id)sender;
 
 @end

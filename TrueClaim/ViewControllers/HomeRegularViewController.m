@@ -19,6 +19,7 @@
 #import "AboutUsViewController.h"
 #import "NZLabel.h"
 #import "MyDatabaseManager.h"
+#import "UIVIew+RKBorder.h"
 
 @interface HomeRegularViewController ()
 
@@ -30,9 +31,7 @@
 
 -(void) viewDidAppear:(BOOL)animated
 {
-//    
-//     LinkClaimViewController *linkClaimView = [self.storyboard instantiateViewControllerWithIdentifier:@"LinkClaimViewController"];
-//    self.navController = [[UINavigationController alloc] initWithRootViewController:linkClaimView];
+
 }
 
 - (void)viewDidLoad
@@ -48,17 +47,12 @@
     
     [ApplicationData sharedInstance].navigateFromView = @"HomeView";
     
-//    if([ApplicationData sharedInstance].isFirstTime == YES)
-//    {
-//        IntroViewController *introView = [self.storyboard instantiateViewControllerWithIdentifier:@"IntroViewController"];
-//        introView.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
-//        [self presentViewController:introView animated:NO completion:nil];
-//    }
-    
     self.title = @"Home";
     self.navigationController.navigationBarHidden = YES;
     
-    self.allClaims = [[MyDatabaseManager sharedManager] allRecordsSortByAttribute:nil fromTable:TBL_CLAIM];
+    self.allClaims = [[MyDatabaseManager sharedManager] allRecordsSortByAttribute:nil byAcending:YES fromTable:TBL_LINK_CLAIM];
+    
+    NSLog(@"ALL CLAIMS : %@",self.allClaims);
     
     if([self.allClaims count] == 0)
     {
@@ -68,6 +62,23 @@
     {
         [self setupViewForRegularUser];
     }
+    
+    // customize footer buttons back view
+    
+    self.btnFooterView.backgroundColor = [UIColor clearColor];
+    
+    self.btnLinkBackView.backgroundColor = [UIColor clearColor];
+    self.btnLinkBackView.layer.borderColor = THEME_RED_COLOR.CGColor;
+    self.btnLinkBackView.layer.borderWidth = 1;
+    
+    self.btnReportBackView.backgroundColor = [UIColor clearColor];
+    self.btnReportBackView.layer.borderColor = THEME_RED_COLOR.CGColor;
+    self.btnReportBackView.layer.borderWidth = 1;
+    
+    self.btnBackView.BordersFlag = DrawBordersTop;
+    self.btnBackView.BordersColor = Rgb2UIColor(200, 200, 200);
+    self.btnBackView.BordersWidth = 1;
+    
 }
 
 # pragma mark -
@@ -75,14 +86,11 @@
 
 -(void) setUpViewForFirstTimeUser
 {
-    self.tblClaimsView.hidden = YES;
-    self.logoImageView.hidden = YES;
-    self.tblButtonsView.hidden = NO;
+    self.logoImageView.hidden = NO;
     self.logoBackView.hidden = NO;
     
     self.logoBackView.backgroundColor = [UIColor clearColor];
-    self.tblButtonsView.backgroundColor = [UIColor clearColor];
-    
+
     self.lblLink.text = @"To get the most from this app \n please link your claim below";
     
     NSString *attribText = @"link your claim";
@@ -95,34 +103,46 @@
     
     if(!IS_IPHONE_5)
     {
-        self.logoBackView.frame = CGRectMake(0, 30, self.logoBackView.frame.size.width, self.logoBackView.frame.size.height);
-        self.tblButtonsView.frame = CGRectMake(20, (self.logoBackView.frame.origin.y + self.logoBackView.frame.size.height) + 10, self.tblButtonsView.frame.size.width,155);
-        self.btnBackView.frame = CGRectMake(0, (self.tblButtonsView.frame.origin.y + self.tblButtonsView.frame.size.height) + 20, self.btnBackView.frame.size.width,self.btnBackView.frame.size.height);
+        self.logoBackView.frame = CGRectMake(0, 130, self.logoBackView.frame.size.width, self.logoBackView.frame.size.height);
+        
+        //self.tblButtonsView.frame = CGRectMake(20, (self.logoBackView.frame.origin.y + self.logoBackView.frame.size.height) + 10, self.tblButtonsView.frame.size.width,155);
+        //self.btnBackView.frame = CGRectMake(0, (self.tblButtonsView.frame.origin.y + self.tblButtonsView.frame.size.height) + 20, self.btnBackView.frame.size.width,self.btnBackView.frame.size.height);
     }
     else
     {
-        self.logoBackView.frame = CGRectMake(0, 80, self.logoBackView.frame.size.width, self.logoBackView.frame.size.height);
+        self.logoBackView.frame = CGRectMake(0, 130, self.logoBackView.frame.size.width, self.logoBackView.frame.size.height);
+        self.tblClaimsView.frame = CGRectMake(20, 130 + self.logoBackView.frame.size.height + 20, self.tblClaimsView.frame.size.width, 240);
     }
 }
 
 -(void) setupViewForRegularUser
 {
-    self.tblClaimsView.hidden = NO;
-    self.tblButtonsView.hidden = NO;
-    self.logoBackView.hidden = YES;
+    
     self.logoImageView.hidden = NO;
+    self.logoBackView.hidden = YES;
     
     if(!IS_IPHONE_5)
     {
-        self.tblClaimsView.frame = CGRectMake(20, 115, self.tblClaimsView.frame.size.width, 160);
-        self.tblButtonsView.frame = CGRectMake(20, 115 + self.tblClaimsView.frame.size.height + 5,self.tblButtonsView.frame.size.width , 160);
-        self.btnBackView.frame = CGRectMake(0, self.tblButtonsView.frame.origin.y + self.tblButtonsView.frame.size.height, 320, 44);
+        
+        CGFloat tblHeight = (80 * [self.allClaims count]) + 175;
+        
+        if(tblHeight > 300)
+        {
+            tblHeight = 300;
+        }
+        
+        self.tblClaimsView.frame = CGRectMake(20, 120 , self.tblClaimsView.frame.size.width, tblHeight);
     }
     else
     {
-        self.tblClaimsView.frame = CGRectMake(20, 115, self.tblClaimsView.frame.size.width, 240);
-        self.tblButtonsView.frame = CGRectMake(20, 115 + self.tblClaimsView.frame.size.height + 5,self.tblButtonsView.frame.size.width , 160);
-        self.btnBackView.frame = CGRectMake(0, self.tblButtonsView.frame.origin.y + self.tblButtonsView.frame.size.height, 320, 44);
+        CGFloat tblHeight = (80 * [self.allClaims count]) + 175;
+        
+        if(tblHeight > 385)
+        {
+            tblHeight = 385;
+        }
+        
+        self.tblClaimsView.frame = CGRectMake(20, 120 , self.tblClaimsView.frame.size.width, tblHeight);
     }
     
     [self.tblClaimsView reloadData];
@@ -138,54 +158,24 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    if(tableView == self.tblClaimsView)
-    {
-        return [self.allClaims count];
-    }
-    return 2;
+    return [self.allClaims count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
     if(tableView == self.tblClaimsView)
     {
         static NSString *CellIdentifier = @"claimCell";
         claimCellView *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
         
-        Claim *claim = [self.allClaims objectAtIndex:indexPath.row];
+        LinkToClaim *claim = [self.allClaims objectAtIndex:indexPath.row];
         
         cell.backgroundView = [self createViewForNormalClaimCellView];
         cell.selectedBackgroundView = [self createViewForSelectedClaimCellView];
-        cell.lblClaimNumber.text = [NSString stringWithFormat:@"YOUR CLAIM %@",claim.claimsNumber];
+        cell.lblClaimNumber.text = [NSString stringWithFormat:@"YOUR CLAIM %@",claim.claim_number];
         return cell;
     }
 
-    if(tableView == self.tblButtonsView)
-    {
-        static NSString *CellIdentifier = @"btnCell";
-        btnCellView *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    
-        cell.backgroundView = [self createViewForNormalButton];
-        cell.selectedBackgroundView = [self createViewForSelectedButton];
-    
-        if(indexPath.row == 0)
-        {
-            cell.imgType.image = [UIImage imageNamed:@"ios_link_claim_icon.png"];
-            cell.imgType.highlightedImage = [UIImage imageNamed:@"ios_link_claim_icon.png"];
-            cell.lblTitle.text = @"LINK TO MY CLAIM";
-        }
-        else if(indexPath.row == 1)
-        {
-            cell.imgType.image = [UIImage imageNamed:@"ios_report_claim_icon.png"];
-            cell.imgType.highlightedImage = [UIImage imageNamed:@"ios_report_claim_icon.png"];
-            cell.lblTitle.text = @"REPORT A NEW CLAIM";
-        }
-        
-        cell.backgroundView.backgroundColor = [UIColor clearColor];
-        return cell;
-    }
-    
     return nil;
 }
 
@@ -265,18 +255,21 @@
     
     if(tableView == self.tblClaimsView)
     {
-//        RKTabBaseViewController *tabsVC = [[RKTabBaseViewController alloc]init];
-//        
-//        //[self.navigationController pushViewController:tabsVC animated:YES];
-//        [self presentViewController:tabsVC animated:YES completion:nil];
+            LinkToClaim *claim = [self.allClaims objectAtIndex:indexPath.row];
+            NSLog(@"SELECTED CLAIM AUTH TOKEN ON HOME: %@",claim.auth_token);
+            [ApplicationData sharedInstance].selectedClaim = claim;
+            [self performSegueWithIdentifier:@"TabControllerSegueIdentifier" sender:self];
     }
-    
-    if(tableView == self.tblButtonsView)
-    {
-//        LinkClaimViewController *linkClaimView = [self.storyboard instantiateViewControllerWithIdentifier:@"LinkClaimViewController"];
-//        
-//        [self.navigationController pushViewController:linkClaimView animated:YES];
-    }
+}
+
+-(IBAction)btnLinkClicked:(id)sender
+{
+   // open Link Claim view
+}
+
+-(IBAction)btnReportClicked:(id)sender
+{
+    // open mail view
 }
 
 - (void)didReceiveMemoryWarning
@@ -284,5 +277,11 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    NSLog(@"RECIEVE SEGUE IDENTIFIER ON PREPARE : %@",segue.identifier);
+}
+
 
 @end

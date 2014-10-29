@@ -47,7 +47,6 @@
 
 @end
 
-
 @implementation IQDatabaseManager
 {
     NSManagedObjectContext *_managedObjectContext;
@@ -234,12 +233,13 @@
 }
 
 
-- (NSArray *)allObjectsFromTable:(NSString*)tableName where:(NSString*)key contains:(id)value sortDescriptor:(NSSortDescriptor*)descriptor
+- (NSArray *)allObjectsFromTable:(NSString*)tableName where:(NSString*)key contains:(id)value sortDescriptor:(NSSortDescriptor*)descriptor 
 {
     NSPredicate *predicate;
     if (key && value) 
     {
         NSString *predicateString = [NSString stringWithFormat:@"self.%@ contains[c] \"%@\"",key,value];
+        //NSString *predicateString = [NSString stringWithFormat:@"self.%@ matches \"%@\"",key,value];
         predicate = [NSPredicate predicateWithFormat:predicateString];
     }
     
@@ -272,6 +272,7 @@
     
     for (NSString *aKey in allKeys)
     {
+        //NSLog(@"KEY : %@  VALUE : %@",aKey,[dictionary objectForKey:aKey]);
         id value = [dictionary objectForKey:aKey];
         [object setValue:value forKey:aKey];
     }

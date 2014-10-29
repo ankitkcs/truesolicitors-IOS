@@ -23,9 +23,11 @@
 
 -(void) viewWillAppear:(BOOL)animated
 {
-    self.navigationController.navigationBarHidden = NO;
+   self.navigationController.navigationBarHidden = NO;
    self.navigationItem.title = @"ABOUT US";
    self.navigationController.navigationBar.tintColor = THEME_RED_COLOR;
+    
+    [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"aboutTrue" ofType:@"html"]isDirectory:NO]]];
 }
 
 - (void)didReceiveMemoryWarning

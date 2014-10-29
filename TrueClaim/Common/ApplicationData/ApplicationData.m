@@ -12,22 +12,6 @@
 #include <CoreFoundation/CFString.h>
 #include <CoreFoundation/CFBase.h>
 
-#import "CategoryMaster.h"
-#import "OutletMaster.h"
-#import "OutletDetails.h"
-#import "OrderDetails.h"
-#import "NotificationMaster.h"
-#import "ShippingDetails.h"
-#import "ClientMaster.h"
-#import "RewardsMaster.h"
-#import "OrderHistory.h"
-#import "OrderHistoryDetails.h"
-#import "MenuMaster.h"
-#import "SettingDetails.h"
-#import "PromoImageDetails.h"
-#import "AboutUsDetails.h"
-#import "IngrediantDetails.h"
-
 
 @implementation ApplicationData
 
@@ -58,6 +42,9 @@
 @synthesize isDisply_PassCodeScreen;
 @synthesize isPasscodeSaved;
 @synthesize navigateFromView;
+@synthesize tc_auth_token;
+@synthesize selectedClaim;
+@synthesize selectedDocDetail;
 
 + (ApplicationData *)sharedInstance {
     
@@ -389,7 +376,7 @@
 #pragma mark String Formatting
 #pragma mark -------------------------------
 
-+(NSString *) getStringFromDate:(NSDate*) myDate andFormt:(NSString*)formatString
++(NSString *) getStringFromDate:(NSDate*)myDate inFormat:(NSString*)formatString
 {
     NSDateFormatter * formatter = [[NSDateFormatter alloc]init];
     [formatter setDateFormat:formatString];

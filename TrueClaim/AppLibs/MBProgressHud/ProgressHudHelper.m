@@ -32,9 +32,8 @@
     UIWindow *window = [[[UIApplication sharedApplication] windows] lastObject];
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:window animated:YES];
     hud.labelText = loadingMsg;
-    
     hud.alpha = 1.0;
-    hud.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
+    hud.backgroundColor = [UIColor colorWithWhite:1 alpha:0.7];
     hud.color = [UIColor clearColor];
 }
 

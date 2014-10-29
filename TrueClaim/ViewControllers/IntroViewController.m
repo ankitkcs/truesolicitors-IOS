@@ -23,7 +23,7 @@
     
     self.view.backgroundColor = APP_BACKGROUND_IMAGE;
     
-    [[MyDatabaseManager sharedManager] deleteAllRecordOfTable:TBL_CLAIM];
+    //[[MyDatabaseManager sharedManager] deleteAllRecordOfTable:TBL_LINK_CLAIM];
     
     self.webApiRequest = [[WebApiRequest alloc] init];
     
@@ -48,15 +48,7 @@
 	// programmatically add the page control dots
 	 self.pageControl = [[DDPageControl alloc] init] ;
     
-    if(IS_IPHONE_5)
-    {
-        [self.pageControl setCenter: CGPointMake(self.view.center.x, self.view.bounds.size.height-115.0f)];
-    }
-    else
-    {
-        [self.pageControl setCenter: CGPointMake(self.view.center.x, self.view.bounds.size.height-145.0f)];
-    }
-    
+    [self.pageControl setCenter:CGPointMake(self.pagerBackView.frame.size.width/2, self.pagerBackView.frame.size.height/2)];
 	[self.pageControl setNumberOfPages: numberOfPages];
 	[self.pageControl setCurrentPage: 0] ;
 	[self.pageControl addTarget: self action: @selector(pageControlClicked:) forControlEvents: UIControlEventValueChanged] ;
@@ -66,7 +58,7 @@
 	[self.pageControl setOffColor: [UIColor blackColor]] ;
 	[self.pageControl setIndicatorDiameter: 10.0f];
 	[self.pageControl setIndicatorSpace: 10.0f] ;
-	[self.view addSubview: self.pageControl];
+	[self.pagerBackView addSubview: self.pageControl];
 	
 	for (int i = 0 ; i < numberOfPages ; i++)
 	{
@@ -90,15 +82,15 @@
 {
     self.navigationController.navigationBarHidden = YES;
     
+    self.introBackView.backgroundColor = [UIColor clearColor];
+    self.scrollerBackView.backgroundColor = [UIColor clearColor];
+    self.pagerBackView.backgroundColor = [UIColor clearColor];
+    
     if(!IS_IPHONE_5)
     {
         self.introBackView.frame = CGRectMake(0, 25, self.introBackView.frame.size.width, self.introBackView.frame.size.height);
-        
-        self.scrollView.frame = CGRectMake(0,( self.introBackView.frame.origin.y + self.introBackView.frame.size.height) , self.scrollView.frame.size.width, 139);
-        
-        self.introLabel.frame = CGRectMake(20,(self.scrollView.frame.origin.y + self.scrollView.frame.size.height) + 15, self.introLabel.frame.size.width, self.introLabel.frame.size.height);
-        
-        self.btnGetStart.frame =  CGRectMake(14,(self.introLabel.frame.origin.y + self.introLabel.frame.size.height) , self.btnGetStart.frame.size.width, self.btnGetStart.frame.size.height);
+
+        self.scrollerBackView.frame = CGRectMake(0,( self.introBackView.frame.origin.y + self.introBackView.frame.size.height) , self.scrollerBackView.frame.size.width, self.scrollerBackView.frame.size.height);
     }
 }
 

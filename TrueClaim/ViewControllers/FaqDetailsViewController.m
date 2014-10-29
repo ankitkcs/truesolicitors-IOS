@@ -18,14 +18,14 @@
 {
     [super viewDidLoad];
     
-    NSLog(@"QDETAIL : %@",self.selFaqDetail.question);
+    NSLog(@"QDETAIL : %@",self.FaqQuestion);
 }
 
 -(void) viewWillAppear:(BOOL)animated
 {
-    float headerHeight = [self dyanmicHeightForlabelText:self.selFaqDetail.question];
+    float headerHeight = [self dyanmicHeightForlabelText:self.FaqQuestion];
     self.headerLabel.frame = CGRectMake(5, 5, 310, headerHeight+15);
-    self.headerLabel.text = self.selFaqDetail.question;
+    self.headerLabel.text = self.FaqQuestion;
     self.headerLabel.clipsToBounds = YES;
     self.headerLabel.backgroundColor = [UIColor clearColor];
     
@@ -34,8 +34,8 @@
     self.btnBack.frame = self.headerBackView.frame;
     self.btnBack.backgroundColor = [UIColor clearColor];
     
-    self.txtFaqDetail.text = self.selFaqDetail.answer;
-    
+    self.txtFaqDetail.frame = CGRectMake(12, self.headerBackView.frame.size.height+5, self.txtFaqDetail.frame.size.width, self.txtFaqDetail.frame.size.height);
+    self.txtFaqDetail.text = self.FaqAnswer;
 }
 
 - (void)didReceiveMemoryWarning

@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface AboutUsViewController : UIViewController
-
+@property (nonatomic,weak) IBOutlet UIWebView *webview;
 @end

@@ -17,6 +17,8 @@
 
 #import "AllConstants.h"
 #import "ApplicationData.h"
+#import "WebApiRequest.h"
+#import "ProgressHudHelper.h"
 
 #define IS_IPHONE_5 (([UIScreen mainScreen].scale == 2.f && [UIScreen mainScreen].bounds.size.height == 568)?YES:NO)
 

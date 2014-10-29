@@ -48,8 +48,8 @@
 
 //*********************** LOCAL WEBSERVER URL *************************//
 
-#define APP_SERVER_URL @"http://192.168.1.81:8090/qwichesWSTablet/index.php?format=json&file=%@"
-#define HOST_NAME @"http://192.168.1.81:8090"
+#define APP_SERVER_URL @"http://82.196.11.49/api/%@"
+#define HOST_NAME @"http://82.196.11.49"
 
 //************************* TEST WEBSERVER URL *********************//
 //
@@ -61,8 +61,19 @@
 //#define APP_SERVER_URL @"http://69.162.69.130:1001/qwichesWS/index.php?file=%@&format=json"
 //#define HOST_NAME @"http://69.162.69.130"
 
-//*********************** LOCAL WEBSERVICES ACTIONS [NAME] *************************//
+//************************** SERVICE TYPE ********************//
 
+#define WS_POST @"POST"
+#define WS_GET @"GET"
+#define WS_PUT @"PUT"
+
+//************************* WEB API KEYS *************************//
+
+#define kCLAIM_NUMBER @"claim_number"
+#define kBITH_DATE @"date_of_birth"
+#define kDEVICE_ID @"device_id"
+
+//*********************** LOCAL WEBSERVICES ACTIONS [NAME] *************************//
 #define ACT_USER_LOGIN @"setlogin"
 #define ACT_GET_MENU @"getmenu"
 #define ACT_GET_CATEGORY @"getcategory"
@@ -87,7 +98,26 @@
 #define ACT_SET_ERRORLOG @"seterrorlog"
 #define ACT_GET_COUPON_DETAIL @"getcoupondetail"
 
+#define reqLINK_CLAIM @"accounts/true_solicitors/claims/link"
+#define reqGET_MESSAGE @"messages"
+#define reqGET_DOCUMENTS @"documents"
+#define reqGET_DOCUMNETS_TYPE @"document_types"
+#define reqGET_PDFDOCBY_GUID @"documents/%@"
+
+// ********************** TRUE CALIM AUTHENTICATION **********************
+
+#define AUTH_USER @"true_solicitors"
+#define LINK_TOKEN @"3bf73122ecbd29c667e599d679ad2ef4"
+
 //************************* SERVICE TAGS *********************//
-#define GET_USER 111
+#define tLink 210
+#define tGetMessage 211
+#define tGetNewMessage 212
+#define tGetDoc 213
+#define tGetDocType 214
+#define tGetDocPDF 215
+#define tAction 216
+#define tActionRead 217
+
 
 

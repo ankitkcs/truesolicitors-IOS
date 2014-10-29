@@ -11,6 +11,13 @@
 #import "RKMTransView.h"
 //#import "RKPopUpAlertView.h"
 
+
+@protocol passDelegate <NSObject>
+
+-(void) viewShowingAfterCorrectPassword;
+
+@end
+
 @interface PassCodeViewController : UIViewController<UITextFieldDelegate,RKMTransViewDelegate>
 {
     int charCounter;
@@ -29,14 +36,22 @@
 @property (strong, nonatomic) IBOutlet UILabel *l3;
 @property (strong, nonatomic) IBOutlet UILabel *l4;
 
+@property(weak,nonatomic)IBOutlet UILabel *lblTitle;
 @property(weak,nonatomic)IBOutlet UILabel *passMessage;
 @property (weak,nonatomic) IBOutlet UITextField *hiddenText;
 
 @property (weak,nonatomic) IBOutlet UIView *fakeNavBarView;
 @property (weak,nonatomic) IBOutlet UIView *passInputBackView;
 @property (weak,nonatomic) IBOutlet UIView *rememberBackView;
+@property (weak,nonatomic) IBOutlet UILabel *lblRemember;
+@property (weak,nonatomic) IBOutlet UILabel *lblYouWill;
+
+@property(weak,nonatomic)IBOutlet UIButton *btnCancel;
+@property (weak,nonatomic) IBOutlet UIButton *btnSave;
 
 @property (strong,nonatomic) RKMTransView *transparentView;
+
+@property(nonatomic,weak) id <passDelegate> delegate;
 
 - (IBAction)btnCancel:(id)sender;
 - (IBAction)btnSave:(id)sender;

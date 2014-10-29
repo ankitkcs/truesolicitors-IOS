@@ -7,6 +7,7 @@
 //
 
 #import "MoreViewController.h"
+#import "AboutUsViewController.h"
 
 @interface MoreViewController ()
 
@@ -26,8 +27,8 @@
     self.navigationItem.title = @"More";
     self.navigationController.navigationBar.tintColor = THEME_RED_COLOR;
     
-    UIBarButtonItem *noteBarBtn = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCompose target:self action:@selector(newMessageClicked:)];
-    self.navigationItem.rightBarButtonItem = noteBarBtn;
+//    UIBarButtonItem *noteBarBtn = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCompose target:self action:@selector(newMessageClicked:)];
+//    self.navigationItem.rightBarButtonItem = noteBarBtn;
     
     self.navigationController.navigationItem.hidesBackButton = YES;
     // add custom back Button
@@ -60,6 +61,13 @@
 {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
+
+-(void) aboutTrueClick:(id)sender
+{
+    AboutUsViewController *aboutView = [self.storyboard instantiateViewControllerWithIdentifier:@"AboutUsViewController"];
+    [self.navigationController pushViewController:aboutView animated:YES];
+}
+
 
 - (void)didReceiveMemoryWarning
 {

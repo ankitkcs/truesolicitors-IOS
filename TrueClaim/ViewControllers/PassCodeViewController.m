@@ -39,7 +39,6 @@
 
 -(void)viewWillAppear:(BOOL)animated
 {
-    
     self.passInputBackView.backgroundColor = [UIColor clearColor];
     
     isNewPass = YES;
@@ -63,11 +62,35 @@
     self.rememberBackView.BordersColor = borderColor;
     self.rememberBackView.BordersWidth = 1;
     
+    // check saved password
     
-//    if([ApplicationData sharedInstance].isPasscodeSaved == YES)
-//    {
-//        [self dismissViewControllerAnimated:YES completion:nil];
-//    }
+    NSString *savedPass = [ApplicationData offlineObjectForKey:SAVED_PASSCODE];
+    
+    if(savedPass != nil)
+    {
+        self.lblTitle.text = @"ENTER PASSCODE";
+        self.passMessage.text = @"please enter your personal 4 digit passcode";
+        //self.rememberBackView.hidden = YES;
+        self.btnSave.hidden = YES;
+        self.btnCancel.hidden = YES;
+        // add Submit Button
+        UIButton *submitBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+        submitBtn.frame = CGRectMake(260, 10, 50, 30);
+        [submitBtn setTitle:@"Submit" forState:UIControlStateNormal];
+        [submitBtn titleLabel].textColor = THEME_RED_COLOR;
+        [submitBtn addTarget:self action:@selector(btnSubmitClick) forControlEvents:UIControlEventTouchUpInside];
+        [self.fakeNavBarView addSubview:submitBtn];
+        
+        self.lblRemember.hidden = YES;
+        self.lblYouWill.hidden = YES;
+        
+        UIButton *forgotBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+        forgotBtn.frame = CGRectMake(60, 15, 200, 30);
+        [forgotBtn setTitle:@"Forgotten passcode?" forState:UIControlStateNormal];
+        [forgotBtn titleLabel].textColor = [UIColor grayColor];
+        //[forgotBtn addTarget:self action:@selector(btnSubmitClick) forControlEvents:UIControlEventTouchUpInside];
+        [self.rememberBackView addSubview:forgotBtn];
+    }
 }
 
 -(void) resetInitialPassView
@@ -117,6 +140,8 @@
         {
             //[self.hiddenText resignFirstResponder];
             //[self dismissViewControllerAnimated:YES completion:nil];
+            
+            [ApplicationData setOfflineObject:confirmPasscode forKey:SAVED_PASSCODE];
             [self showPassCodeSaveSucessAlertView];
         }
         else
@@ -134,6 +159,22 @@
     }
 }
 
+-(void) btnSubmitClick
+{
+     NSString *savedPass = [ApplicationData offlineObjectForKey:SAVED_PASSCODE];
+    
+     if([self.hiddenText.text isEqualToString:savedPass])
+     {
+         [self dismissViewControllerAnimated:YES completion:^{
+             [self.delegate viewShowingAfterCorrectPassword];
+         }];
+     }
+    else
+    {
+        [[ApplicationData sharedInstance]showAlert:@"Password is wrong" andTag:0];
+        [self resetInitialPassView];
+    }
+}
 
 -(void) showPassCodeSaveSucessAlertView
 {
@@ -141,13 +182,13 @@
     
     self.transparentView = [[RKMTransView alloc] init];
     self.transparentView.delegate = self;
-    self.transparentView.backgroundColor = [UIColor colorWithRed:(139.0 / 255.0) green:(23.0 / 255.0) blue:(41.0 / 255.0) alpha:0.9];
-    
+    self.transparentView.backgroundColor = [UIColor clearColor];
+    self.transparentView.allowBlurView  = YES;
+    self.transparentView.hideCloseButton = YES;
     self.transparentView.alertTitle = @"Passcode Saved!";
     self.transparentView.alertImage = [UIImage imageNamed:@"ios_tick_popup_icon.png"];
     self.transparentView.alertMessage = @"Please make sure you remember your 4 digit passcode.";
     [self.transparentView open];
-
 }
 
 #pragma -mark
@@ -156,14 +197,10 @@
 - (void)RKMTransViewDidClosed
 {
     NSLog(@"Did close");
-    [ApplicationData sharedInstance].isPasscodeSaved = YES;
-    [self dismissViewControllerAnimated:NO completion:nil];
-    
-    //    if ([ApplicationData sharedInstance].isDisply_PassCodeScreen == YES)
-    //    {
-    //        [ApplicationData sharedInstance].isDisply_PassCodeScreen = NO;
-    //        [self showPassCodeScreen];
-    //    }
+    //[ApplicationData sharedInstance].isPasscodeSaved = YES;
+    [self dismissViewControllerAnimated:YES completion:^{
+        [self.delegate viewShowingAfterCorrectPassword];
+    }];
 }
 
 -(void)createEmptyRoundLabel:(UILabel*)myLabel

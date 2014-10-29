@@ -17,7 +17,11 @@
 
 @property (weak, nonatomic) IBOutlet UITextView *txtFaqDetail;
 
-@property (strong, nonatomic) FAQDetail *selFaqDetail;
+//@property (strong, nonatomic) FAQDetail *selFaqDetail;
+
+@property (strong, nonatomic) NSString *FaqQuestion;
+@property (strong, nonatomic) NSString *FaqAnswer;
+
 
 - (IBAction)goBackToFAQList:(id)sender;
 

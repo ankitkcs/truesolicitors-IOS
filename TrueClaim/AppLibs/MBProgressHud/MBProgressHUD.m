@@ -449,13 +449,14 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	
 	BOOL isActivityIndicator = [indicator isKindOfClass:[UIActivityIndicatorView class]];
 	BOOL isRoundIndicator = [indicator isKindOfClass:[MBRoundProgressView class]];
-	
+    
 	if (mode == MBProgressHUDModeIndeterminate &&  !isActivityIndicator) {
 		// Update to indeterminate indicator
 		[indicator removeFromSuperview];
 		self.indicator = MB_AUTORELEASE([[UIActivityIndicatorView alloc]
 										 initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge]);
 		[(UIActivityIndicatorView *)indicator startAnimating];
+        [(UIActivityIndicatorView *)indicator setColor:THEME_RED_COLOR]; // ranjit
 		[self addSubview:indicator];
 	}
 	else if (mode == MBProgressHUDModeDeterminate || mode == MBProgressHUDModeAnnularDeterminate) {

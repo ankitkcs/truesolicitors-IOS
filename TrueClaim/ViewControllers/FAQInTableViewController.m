@@ -8,12 +8,20 @@
 
 #import "FAQInTableViewController.h"
 #import "MyDatabaseManager.h"
-#import "DemoData.h"
+#import "FaqData.h"
 #import "FaqDetailsViewController.h"
 
 @interface FAQInTableViewController ()
+{
+    UILabel *lbl;
+}
 @property (nonatomic,retain) NSMutableArray *allFaq;
-@property (nonatomic,retain) FAQDetail *selectedFaq;
+
+@property (nonatomic,retain) NSString *selecQues;
+@property (nonatomic,retain) NSString *selecAns;
+
+
+
 @end
 
 @implementation FAQInTableViewController
@@ -30,43 +38,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    
-     NSArray *records  = [[MyDatabaseManager sharedManager] allRecordsSortByAttribute:nil fromTable:TBL_FAQ_DETAIL];
-    
-    if(records.count == 0)
-    {
-        [self addStaticDataToCoreData];
-    }
-    else
-    {
-        [[MyDatabaseManager sharedManager] deleteAllRecordOfTable:TBL_FAQ_DETAIL];
-        [self addStaticDataToCoreData];
-    }
-    
-    [self reloadMyTable];
+    self.allFaq = [FaqData faqDataForDemo].mutableCopy;
 }
 
--(void) addStaticDataToCoreData
-{
-    NSArray *dataArray = [DemoData faqDataForDemo];
-    
-    for (NSDictionary *msgDict in dataArray)
-    {
-        [[MyDatabaseManager sharedManager] insertRecordInTable:TBL_FAQ_DETAIL withDataDict:msgDict];
-    }
-}
-
--(void)reloadMyTable
-{
-    self.allFaq  = [[[MyDatabaseManager sharedManager] allRecordsSortByAttribute:nil fromTable:TBL_FAQ_DETAIL] mutableCopy];
-    [self.tableView reloadData];
-}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -76,22 +50,23 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"FAQCell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    //UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                                   reuseIdentifier:CellIdentifier];
     
-    FAQDetail *faqDetail = [self.allFaq objectAtIndex:indexPath.row];
-    CGFloat lblHeigtht = [self dyanmicHeightForlabelText:faqDetail.question];
+    NSDictionary *faqDict = [self.allFaq objectAtIndex:indexPath.row];
+    NSString *faQuestion = [faqDict valueForKey:kQuestion];
+    CGFloat lblHeigtht = [self dyanmicHeightForlabelText:faQuestion];
     
-    UILabel *lbl = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 280, lblHeigtht)];
-    lbl.backgroundColor = [UIColor clearColor];
-    lbl.textColor = [UIColor blackColor];
-    lbl.numberOfLines = 0;
-    lbl.lineBreakMode = NSLineBreakByWordWrapping;
-    lbl.text = faqDetail.question;
-    lbl.font = [UIFont systemFontOfSize:15.0];
-    
-    //cell.backgroundColor = [UIColor orangeColor];
-    [cell.contentView addSubview:lbl];
-    return cell;
+        lbl = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 280, lblHeigtht)];
+        lbl.backgroundColor = [UIColor clearColor];
+        lbl.textColor = [UIColor blackColor];
+        lbl.numberOfLines = 0;
+        lbl.lineBreakMode = NSLineBreakByWordWrapping;
+        lbl.text = faQuestion;
+        lbl.font = [UIFont systemFontOfSize:15.0];
+        [cell.contentView addSubview:lbl];
+        return cell;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -102,24 +77,24 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     CGFloat cellHeight = 0;
-    FAQDetail *faqDetail = [self.allFaq objectAtIndex:indexPath.row];
-    cellHeight = 10 + [self dyanmicHeightForlabelText:faqDetail.question] + 10;
+
+    NSDictionary *faqDict = [self.allFaq objectAtIndex:indexPath.row];
+    NSString *faQuestion = [faqDict valueForKey:kQuestion];
+    cellHeight = 10 + [self dyanmicHeightForlabelText:faQuestion] + 10;
     return cellHeight;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-     FAQDetail *faqDetail = [self.allFaq objectAtIndex:indexPath.row];
-     self.selectedFaq = faqDetail;
-    //NSLog(@"QCLICK :  %@",self.selectedFaq.question);
     
-//    FaqDetailsViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"FaqDetailsViewController"];
-//    controller.selFaqDetail = self.selectedFaq;
+    NSDictionary *faqDict = [self.allFaq objectAtIndex:indexPath.row];
+    NSString *faQuestion = [faqDict valueForKey:kQuestion];
     
-   // [self.navigationController pushViewController:controller animated:YES];
+    self.selecQues = faQuestion;
+    self.selecAns =  [faqDict valueForKey:kAnswer];
+    NSLog(@"QCLICK :  %@",faQuestion);
     [self performSegueWithIdentifier:@"FaqDetailSegueIdentifier" sender:self];
-    
-     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 -(CGFloat) dyanmicHeightForlabelText:(NSString*)str
@@ -160,7 +135,16 @@
  if ([segue.identifier isEqualToString:@"FaqDetailSegueIdentifier"])
  {
      FaqDetailsViewController *controller = [segue destinationViewController];
-     controller.selFaqDetail = self.selectedFaq;
+     //controller.selFaqDetail = self.selectedFaq;
+     controller.FaqQuestion = self.selecQues;
+     controller.FaqAnswer = self.selecAns;
+     
+    // NSDictionary *faqDict = [self.allFaq objectAtIndex:indexPath.row];
+     //NSString *faQuestion = [faqDict valueForKey:kQuestion];
+     
+     //self.selecQues = faQuestion;
+     //self.selecAns =  [faqDict valueForKey:kAnswer];
+     
      //NSLog(@"QSEG : %@",self.selectedFaq.question);
      //controller.headerLabel.text = self.selectedFaq.question;
  }

@@ -2,7 +2,7 @@
 //  MassegeDetail.m
 //  TrueClaim
 //
-//  Created by krish on 8/27/14.
+//  Created by krish on 10/7/14.
 //  Copyright (c) 2014 KCSPL. All rights reserved.
 //
 
@@ -11,9 +11,16 @@
 
 @implementation MassegeDetail
 
-@dynamic msgDate;
-@dynamic msgImage;
-@dynamic msgText;
-@dynamic msgAttachment;
+@dynamic attached_document_guids;
+@dynamic from;
+@dynamic guid;
+@dynamic body;
+@dynamic posted_at;
+@dynamic is_delivered;
+@dynamic is_to_firm;
+
+@dynamic is_new_message;
+@dynamic created_at;
+@dynamic claim_number;
 
 @end

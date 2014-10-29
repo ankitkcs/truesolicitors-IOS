@@ -1,18 +1,47 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="12F45" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
-    <entity name="Claim" representedClassName="Claim" syncable="YES">
-        <attribute name="claimsDate" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="claimsNumber" optional="YES" attributeType="String" syncable="YES"/>
+    <entity name="DocumentDetail" representedClassName="DocumentDetail" syncable="YES">
+        <attribute name="app_date_actioned_at" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="app_date_read_at" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="claim_number" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="created_at" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="guid" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="recorded_at" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type_code" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DocumentsType" representedClassName="DocumentsType" syncable="YES">
+        <attribute name="action_prompt" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="code" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="recorded_at" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="response_template" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="FAQDetail" representedClassName="FAQDetail" syncable="YES">
         <attribute name="answer" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="question" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
+    <entity name="LinkToClaim" representedClassName="LinkToClaim" syncable="YES">
+        <attribute name="accident_date" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="account_id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="account_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="auth_token" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="claim_number" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="created_at" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="customer_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="linked_at" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <entity name="MassegeDetail" representedClassName="MassegeDetail" syncable="YES">
-        <attribute name="msgAttachment" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="msgDate" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="msgImage" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="msgText" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="attached_document_guids" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="claim_number" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="created_at" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="from" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="guid" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="is_delivered" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="is_new_message" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="is_to_firm" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="posted_at" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="RecordTable" syncable="YES">
         <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
@@ -24,10 +53,12 @@
         <attribute name="password" optional="YES" attributeType="Boolean" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Claim" positionX="-342" positionY="-135" width="128" height="73"/>
-        <element name="MassegeDetail" positionX="-369" positionY="45" width="128" height="103"/>
-        <element name="RecordTable" positionX="-99" positionY="99" width="128" height="105"/>
-        <element name="Settings" positionX="-135" positionY="-42" width="128" height="60"/>
-        <element name="FAQDetail" positionX="-378" positionY="209" width="128" height="73"/>
+        <element name="DocumentDetail" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="DocumentsType" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="FAQDetail" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="LinkToClaim" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="MassegeDetail" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="RecordTable" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Settings" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

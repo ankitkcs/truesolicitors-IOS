@@ -9,8 +9,16 @@
 #import "ConfirmViewController.h"
 #import "QRadioButton.h"
 #import "MyFolderViewController.h"
+#import "MyDataBaseManager.h"
+#import "MsgTruePopController.h"
+#import "QCheckBox.h"
 
-@interface ConfirmViewController ()
+
+@interface ConfirmViewController () <MessagePopDelegate,QRadioButtonDelegate,QCheckBoxDelegate>
+
+{
+    QCheckBox *checkMsg;
+}
 
 @end
 
@@ -42,44 +50,66 @@
     self.navigationItem.rightBarButtonItem = btnConfirm;
     
     self.navigationItem.title = @"AUTORITY";
-
+    self.authType = @"None";
+    
+    self.selDocDetail = [ApplicationData sharedInstance].selectedDocDetail;
+    
+    NSArray *docTypeArr = [[MyDatabaseManager sharedManager]  allRecordsSortByAttribute:kDocTypeDocCode where:kDocTypeDocCode contains:self.selDocDetail.type_code byAcending:YES fromTable:TBL_DOCUMENT_TYPE];
+    
+    NSLog(@"doc Detail Find : %@ And Total Count : %lu",docTypeArr,(unsigned long)docTypeArr.count);
+    
+    DocumentsType *selDoc = [docTypeArr objectAtIndex:0];
+    
+    NSLog(@"DOC ACTION PROMPT : %@",selDoc.action_prompt);
+    
+    self.lblPrompt.text = selDoc.action_prompt;
+    
 }
 
 - (void)createCustomRadioButton
 {
-    QRadioButton *rdoBtnTable = [[QRadioButton alloc] initWithDelegate:self groupId:@"groupCarTable"];
-    rdoBtnTable.frame = CGRectMake(50, 280,200, 44);
-    [rdoBtnTable setTitle:@"I Agree" forState:UIControlStateNormal];
-    [rdoBtnTable setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [rdoBtnTable setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
-    [rdoBtnTable setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
-    [rdoBtnTable.titleLabel setFont:[UIFont systemFontOfSize:16]];
-    [rdoBtnTable setImage:[UIImage imageNamed:@"ios_selection_circle_icon.png"] forState:UIControlStateNormal];
-    [rdoBtnTable setImage:[UIImage imageNamed:@"ios_selection_tick_icon.png"] forState:UIControlStateSelected];
-    [self.view addSubview:rdoBtnTable];
+    
+    CGFloat posY = self.lblPrompt.frame.origin.y + self.lblPrompt.frame.size.height + 20;
+    
+    QRadioButton *rdoBtnAgree = [[QRadioButton alloc] initWithDelegate:self
+                                                               groupId:@"groupAuthority"];
+    rdoBtnAgree.frame = CGRectMake(50, posY,200, 40);
+    rdoBtnAgree.tag = 1000;
+    [rdoBtnAgree setTitle:@"I Agree" forState:UIControlStateNormal];
+    [rdoBtnAgree setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [rdoBtnAgree setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
+    [rdoBtnAgree setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
+    [rdoBtnAgree.titleLabel setFont:[UIFont systemFontOfSize:15]];
+    [rdoBtnAgree setImage:[UIImage imageNamed:@"ios_selection_circle_icon.png"] forState:UIControlStateNormal];
+    [rdoBtnAgree setImage:[UIImage imageNamed:@"ios_selection_tick_icon.png"] forState:UIControlStateSelected];
+    [self.view addSubview:rdoBtnAgree];
     
 
-    QRadioButton *rdoBtnCar = [[QRadioButton alloc] initWithDelegate:self groupId:@"groupCarTable"];
-    rdoBtnCar.frame = CGRectMake(50,330, 200, 44);
-    [rdoBtnCar setTitle:@"I Do Not Agree" forState:UIControlStateNormal];
-    [rdoBtnCar setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [rdoBtnCar setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
-    [rdoBtnCar setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
-    [rdoBtnCar.titleLabel setFont:[UIFont systemFontOfSize:16]];
-    [rdoBtnCar setImage:[UIImage imageNamed:@"ios_selection_circle_icon.png"] forState:UIControlStateNormal];
-    [rdoBtnCar setImage:[UIImage imageNamed:@"ios_selection_tick_icon.png"] forState:UIControlStateSelected];
-    [self.view addSubview:rdoBtnCar];
+    QRadioButton *rdoBtnDisAgree = [[QRadioButton alloc] initWithDelegate:self
+                                                                  groupId:@"groupAuthority"];
+    rdoBtnDisAgree.frame = CGRectMake(50,posY+50, 200, 40);
+    rdoBtnDisAgree.tag = 2000;
+    [rdoBtnDisAgree setTitle:@"I Do Not Agree" forState:UIControlStateNormal];
+    [rdoBtnDisAgree setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [rdoBtnDisAgree setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
+    [rdoBtnDisAgree setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
+    [rdoBtnDisAgree.titleLabel setFont:[UIFont systemFontOfSize:15]];
+    [rdoBtnDisAgree setImage:[UIImage imageNamed:@"ios_selection_circle_icon.png"] forState:UIControlStateNormal];
+    [rdoBtnDisAgree setImage:[UIImage imageNamed:@"ios_selection_tick_icon.png"] forState:UIControlStateSelected];
+    [self.view addSubview:rdoBtnDisAgree];
     
-    QRadioButton *rdoBtn = [[QRadioButton alloc] initWithDelegate:self groupId:@"groupCarTable"];
-    rdoBtn.frame = CGRectMake(50,380, 280, 44);
-    [rdoBtn setTitle:@"Include a message to TRUE?" forState:UIControlStateNormal];
-    [rdoBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [rdoBtn setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
-    [rdoBtn setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
-    [rdoBtn.titleLabel setFont:[UIFont systemFontOfSize:16]];
-    [rdoBtn setImage:[UIImage imageNamed:@"ios_selection_circle_icon.png"] forState:UIControlStateNormal];
-    [rdoBtn setImage:[UIImage imageNamed:@"ios_selection_tick_icon.png"] forState:UIControlStateSelected];
-    [self.view addSubview:rdoBtn];
+    
+    checkMsg = [[QCheckBox alloc] initWithDelegate:self];
+    checkMsg.frame = CGRectMake(50,posY+100, 280, 40);
+    [checkMsg setTitle:@"Include a message to TRUE?" forState:UIControlStateNormal];
+    [checkMsg setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [checkMsg setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
+    [checkMsg setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
+    [checkMsg.titleLabel setFont:[UIFont systemFontOfSize:15.0f]];
+    [checkMsg setImage:[UIImage imageNamed:@"ios_selection_circle_icon.png"] forState:UIControlStateNormal];
+    [checkMsg setImage:[UIImage imageNamed:@"ios_selection_tick_icon.png"] forState:UIControlStateSelected];
+    [self.view addSubview:checkMsg];
+    [checkMsg setChecked:NO];
 }
 
 #pragma mark - QRadioButtonDelegate
@@ -88,15 +118,32 @@
 {
     NSLog(@"did selected radio:%@ groupId:%@", radio.titleLabel.text, groupId);
     
-//    if([radio.titleLabel.text isEqualToString:@"Car"])
-//    {
-//        self.bokingFor = @"Car";
-//    }
-//    else
-//    {
-//        self.bokingFor = @"Table";
-//    }
+    if(radio.tag == 1000) // agree
+     {
+         self.authType = @"1"; // for agree
+     }
+    else if(radio.tag == 2000)
+    {
+         self.authType = @"0"; // for disagree
+    }
 }
+
+#pragma mark - QCheckBoxDelegate
+
+- (void)didSelectedCheckBox:(QCheckBox *)checkbox checked:(BOOL)checked
+{
+    NSLog(@"did tap on CheckBox:%@ checked:%d", checkbox.titleLabel.text, checked);
+    
+    if(checked)
+    {
+        self.isMessage = YES;
+    }
+    else
+    {
+        self.isMessage = NO;
+    }
+}
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -106,16 +153,122 @@
 
 - (IBAction)btnConfirmTapped:(id)sender
 {
-    //MyFolderViewController *myFolderView = [self.storyboard instantiateViewControllerWithIdentifier:@"MyFolderViewController"];
+    if([self.authType isEqualToString:@"None"])
+    {
+        [[ApplicationData sharedInstance] showAlert:@"Plese perform action for Agree or Disagree."
+                                             andTag:0];
+    }
+    else
+    {
+        // if message selected show message prompt
+        if(self.isMessage)
+        {
+            MsgTruePopController *msgAlert = [[MsgTruePopController alloc] init];
+            msgAlert.delegate = self;
+            [msgAlert Open];
+        }
+        else
+        {
+            // send request without message
+            [self sendRequestForConfrimAction];
+        }
+    }
+}
+
+
+-(void) PopUpCancelWithMessageText:(NSString *)msgText
+{
+    NSLog(@"Entered Passcode In MyFolder %@",msgText);
+    self.optionMsgText = @"";
     
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    // uncheck msg checkbox
+    [checkMsg setChecked:NO];
+    self.isMessage = NO;
+}
+
+-(void) PopUpDoneWithMessageText:(NSString *)msgText
+{
+    NSLog(@"Entered Passcode In MyFolder %@",msgText);
+    self.optionMsgText = msgText;
+    
+    [self sendRequestForConfrimAction];
+}
+
+-(void) sendRequestForConfrimAction
+{
+    self.selDocDetail = [ApplicationData sharedInstance].selectedDocDetail;
+    NSString *readDate = self.selDocDetail.app_date_read_at;
+    NSString *actionDate = [ApplicationData getStringFromDate:[NSDate date] inFormat:DATETIME_FORMAT_DB];
+    NSString *reqForConfirm = [NSString stringWithFormat:@"documents/%@",self.selDocDetail.guid];
+    
+    if([ApplicationData ConnectedToInternet])
+    {
+        [ProgressHudHelper showLoadingHudWithText:@""];
+        NSDictionary *reqDict = @{@"app_date_read_at": readDate,
+                                  @"app_date_actioned_at":actionDate,
+                                  @"app_type_of_action":self.authType,
+                                  @"optional_message":self.optionMsgText
+                                  };
+        
+        self.webApi = [[WebApiRequest alloc]init];
+        [self.webApi PostDataWithParameter:reqDict.mutableCopy forDelegate:self andTag:tAction forRequstType:reqForConfirm serviceType:WS_PUT];
+    }
+    else
+    {
+        [[ApplicationData sharedInstance] showAlert:INTERNET_CONNECTION_ERROR andTag:0];
+    }
+
+}
+
+#pragma mark -
+#pragma mark webapi delegate
+-(void)setData:(NSMutableArray *)responseData :(NSString *)ErrorMsg withDelegate:(id)Delegate andTag:(int)Tag
+{
+    @try{
+        
+        if ([ErrorMsg length]>0)
+        {
+            [ProgressHudHelper dissmissAdvanceHud];
+            [[ApplicationData sharedInstance] showAlert:ErrorMsg andTag:0];
+        }
+        else
+        {
+            if (Tag == tAction)
+            {
+                NSLog(@"Response Data : %@",responseData);
+                
+                if([[responseData valueForKey:@"response_message"] isEqualToString:@"success"])
+                {
+                    [ProgressHudHelper hideLoadingHud];
+                    NSLog(@"Update the data to database according to response");
+                }
+                else
+                {
+                    [ProgressHudHelper hideLoadingHud];
+                    [[ApplicationData sharedInstance] showAlert:[responseData valueForKey:@"response_message"] andTag:0];
+                }
+                
+                [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+            }
+        }
+    }
+    @catch (NSException *exception)
+    {
+        
+    }
+    @finally
+    {
+        
+    }
 }
 
 - (IBAction)btnCancelTapped:(id)sender
 {
-    //MyFolderViewController *myFolderView = [self.storyboard instantiateViewControllerWithIdentifier:@"MyFolderViewController"];
     [self.navigationController popViewControllerAnimated:YES];
 }
+
+
+
 
 
 @end

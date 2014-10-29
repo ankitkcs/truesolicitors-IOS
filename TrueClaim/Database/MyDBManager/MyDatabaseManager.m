@@ -17,22 +17,31 @@
 }
 
 #pragma mark - Get All Record From Table
-- (NSArray *)allRecordsSortByAttribute:(NSString*)attribute fromTable:(NSString*)tableName
+- (NSArray *)allRecordsSortByAttribute:(NSString*)attribute byAcending:(BOOL)yn fromTable:(NSString*)tableName
 {
     NSSortDescriptor *sortDescriptor = nil;
     
-    if ([attribute length]) sortDescriptor = [[NSSortDescriptor alloc] initWithKey:attribute ascending:YES];
+    if ([attribute length]) sortDescriptor = [[NSSortDescriptor alloc] initWithKey:attribute ascending:yn];
     
     return [self allObjectsFromTable:tableName sortDescriptor:sortDescriptor];
 }
 
-- (NSArray *)allRecordsSortByAttribute:(NSString*)attribute where:(NSString*)key contains:(id)value
+- (NSArray *)allRecordsSortByAttribute:(NSString*)attribute where:(NSString*)key contains:(id)value byAcending:(BOOL)yn fromTable:(NSString*)tableName
 {
     NSSortDescriptor *sortDescriptor = nil;
     
-    if ([attribute length]) sortDescriptor = [[NSSortDescriptor alloc] initWithKey:attribute ascending:YES];
+    if ([attribute length]) sortDescriptor = [[NSSortDescriptor alloc] initWithKey:attribute ascending:yn];
     
-    return [self allObjectsFromTable:NSStringFromClass([MassegeDetail class]) where:key contains:value sortDescriptor:sortDescriptor];
+    if([tableName isEqualToString:TBL_MASSEGE_DETAIL])
+    {
+         return [self allObjectsFromTable:tableName where:key contains:value sortDescriptor:sortDescriptor];
+    }
+    else  if([tableName isEqualToString:TBL_DOCUMENT_TYPE])
+    {
+        return [self allObjectsFromTable:tableName where:key equals:value sortDescriptor:sortDescriptor];
+    }
+    
+    return nil;
 }
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -45,9 +54,17 @@
     {
        return (MassegeDetail*)[self insertRecordInTable:tableName withAttribute:recordAttributes];
     }
-    else if ([tableName isEqualToString:TBL_CLAIM])
+    else if ([tableName isEqualToString:TBL_LINK_CLAIM])
     {
-        return (Claim*)[self insertRecordInTable:tableName withAttribute:recordAttributes];
+        return (LinkToClaim*)[self insertRecordInTable:tableName withAttribute:recordAttributes];
+    }
+    else if ([tableName isEqualToString:TBL_DOCUMENT_DETAIL])
+    {
+        return (DocumentDetail*)[self insertRecordInTable:tableName withAttribute:recordAttributes];
+    }
+    else if ([tableName isEqualToString:TBL_DOCUMENT_TYPE])
+    {
+        return (DocumentsType*)[self insertRecordInTable:tableName withAttribute:recordAttributes];
     }
     else if ([tableName isEqualToString:TBL_FAQ_DETAIL])
     {
@@ -56,45 +73,82 @@
     return nil;
 }
 
+#pragma mark - Update Record From Table
+
+//- (MassegeDetail*) updateRecord:(MassegeDetail*)record inMassegeDetailTable:(NSDictionary*)recordAttributes
+//{
+//    if([tableName isEqualToString:TBL_MASSEGE_DETAIL])
+//    {
+//        return (MassegeDetail*)[self updateRecord:record withAttribute:recordAttributes];
+//    }
+//    
+//    return nil;
+//}
+
+-(id) updateRecordInTable:(NSString*)tableName ofRecord:(id)record recordDetail:(NSDictionary*)recordAttributes
+{
+    if([tableName isEqualToString:TBL_MASSEGE_DETAIL])
+    {
+        MassegeDetail *msgRecord;
+        if([record isKindOfClass:[MassegeDetail class]])
+        {
+            msgRecord = (MassegeDetail*)record;
+        }
+        return (MassegeDetail*)[self updateRecord:msgRecord withAttribute:recordAttributes];
+    }
+    else if([tableName isEqualToString:TBL_DOCUMENT_DETAIL])
+    {
+        DocumentDetail *docRecord;
+        if([record isKindOfClass:[DocumentDetail class]])
+        {
+            docRecord = (DocumentDetail*)record;
+        }
+        return (DocumentDetail*)[self updateRecord:docRecord withAttribute:recordAttributes];
+    }
+    
+    return nil;
+}
+
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-#pragma mark - MsgDetails
+//#pragma mark - MsgDetails
+//
+//- (MassegeDetail*) insertRecordInMassegeDetailTable:(NSDictionary*)recordAttributes
+//{
+//    return (MassegeDetail*)[self insertRecordInTable:NSStringFromClass([MassegeDetail class]) withAttribute:recordAttributes];
+//}
+//
+//- (MassegeDetail*) insertUpdateRecordInMassegeDetailTable:(NSDictionary*)recordAttributes
+//{
+//    return (MassegeDetail*)[self insertRecordInTable:NSStringFromClass([MassegeDetail class]) withAttribute:recordAttributes updateOnExistKey:kEmail equals:[recordAttributes objectForKey:kEmail]];
+//}
+//
+//- (MassegeDetail*) updateRecord:(MassegeDetail*)record inMassegeDetailTable:(NSDictionary*)recordAttributes
+//{
+//    return (MassegeDetail*)[self updateRecord:record withAttribute:recordAttributes];
+//}
+//
+//- (BOOL) deleteMassegeDetailTableRecord:(MassegeDetail*)record
+//{
+//     return [self deleteRecord:record];
+//}
 
-- (MassegeDetail*) insertRecordInMassegeDetailTable:(NSDictionary*)recordAttributes
-{
-    return (MassegeDetail*)[self insertRecordInTable:NSStringFromClass([MassegeDetail class]) withAttribute:recordAttributes];
-}
-
-- (MassegeDetail*) insertUpdateRecordInMassegeDetailTable:(NSDictionary*)recordAttributes
-{
-    return (MassegeDetail*)[self insertRecordInTable:NSStringFromClass([MassegeDetail class]) withAttribute:recordAttributes updateOnExistKey:kEmail equals:[recordAttributes objectForKey:kEmail]];
-}
-
-- (MassegeDetail*) updateRecord:(MassegeDetail*)record inMassegeDetailTable:(NSDictionary*)recordAttributes
-{
-    return (MassegeDetail*)[self updateRecord:record withAttribute:recordAttributes];
-}
-
-- (BOOL) deleteMassegeDetailTableRecord:(MassegeDetail*)record
-{
-     return [self deleteRecord:record];
-}
-
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-#pragma mark - RecordTable
--(RecordTable*) insertRecordInRecordTable:(NSDictionary*)recordAttribute
-{
-    return (RecordTable*)[self insertRecordInTable:NSStringFromClass([RecordTable class]) withAttribute:recordAttribute];
-}
-
-- (RecordTable*) insertUpdateRecordInRecordTable:(NSDictionary*)recordAttribute
-{
-    return (RecordTable*)[self insertRecordInTable:NSStringFromClass([RecordTable class]) withAttribute:recordAttribute updateOnExistKey:kEmail equals:[recordAttribute objectForKey:kEmail]];
-}
-
-- (RecordTable*) updateRecord:(RecordTable*)record inRecordTable:(NSDictionary*)recordAttribute
-{
-    return (RecordTable*)[self updateRecord:record withAttribute:recordAttribute];
-}
+////::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//#pragma mark - RecordTable
+//-(RecordTable*) insertRecordInRecordTable:(NSDictionary*)recordAttribute
+//{
+//    return (RecordTable*)[self insertRecordInTable:NSStringFromClass([RecordTable class]) withAttribute:recordAttribute];
+//}
+//
+//- (RecordTable*) insertUpdateRecordInRecordTable:(NSDictionary*)recordAttribute
+//{
+//    return (RecordTable*)[self insertRecordInTable:NSStringFromClass([RecordTable class]) withAttribute:recordAttribute updateOnExistKey:kEmail equals:[recordAttribute objectForKey:kEmail]];
+//}
+//
+//- (RecordTable*) updateRecord:(RecordTable*)record inRecordTable:(NSDictionary*)recordAttribute
+//{
+//    return (RecordTable*)[self updateRecord:record withAttribute:recordAttribute];
+//}
 
 - (BOOL) deleteTableRecord:(RecordTable*)record
 {

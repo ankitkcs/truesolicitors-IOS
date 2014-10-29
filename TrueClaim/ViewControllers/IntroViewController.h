@@ -23,6 +23,9 @@
 }
 
 @property (nonatomic,retain) IBOutlet UIView  *introBackView;
+@property (nonatomic,retain) IBOutlet UIView *scrollerBackView;
+@property (nonatomic,retain) IBOutlet UIView *pagerBackView;
+
 @property (nonatomic,retain) IBOutlet UIScrollView  *scrollView;
 @property (nonatomic,retain) IBOutlet UILabel *introLabel;
 @property (nonatomic,retain) IBOutlet UIButton *btnGetStart;

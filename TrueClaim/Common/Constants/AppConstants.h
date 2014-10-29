@@ -12,13 +12,14 @@
 #define DB_NAME @"Qwiches.sqlite"
 
 //************************* DATE FORMAT *********************//
-
 #define DATETIME_FORMAT_WS @"yyyy-MM-dd HH:mm:ss"
+#define DATETIME_FORMAT_DB @"yyyy-MM-dd HH:mm:ss"
 #define DATE_FORMAT_WS @"yyyy-MM-dd"
 #define DATETIME_FORMAT_DISPLAY @"dd, MMM yyyy    hh:mm a"
 #define DATE_FORMAT_DISPLAY @"dd, MMM yyyy"
 
 //**********************  VALIDATION  *******************//
+
 #define MAX_LENGTH_ASSOCIATE_NAME 20
 #define MAX_LENGTH_ASSOCIATE_MOBILE_NUMBER 15
 #define MAX_LENGTH_ASSOCIATE_EMAIL_ID 50
@@ -35,7 +36,10 @@
 #define LEGALCHARACTERS_FOR_PHONE_NO "1234567890"
 #define MAX_PRODUCT_QUANTITY 99
 
+#define SAVED_PASSCODE @"savedPasscode"
+
 //********************** APP THEME COLORS *******************//
+
 #define Rgb2UIColor(r, g, b) [UIColor colorWithRed:((r) / 255.0) green:((g) / 255.0) blue:((b) / 255.0) alpha:1.0]
 
 #define THEME_RED_COLOR [UIColor colorWithRed:(139.0 / 255.0) green:(23.0 / 255.0) blue:(41.0 / 255.0) alpha:1.0]

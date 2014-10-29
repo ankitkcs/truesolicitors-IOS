@@ -19,7 +19,8 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
+    if (self)
+    {
         // Custom initialization
     }
     return self;
@@ -29,22 +30,21 @@
 {
     [super viewDidLoad];
     self.view.backgroundColor = APP_BACKGROUND_IMAGE;
-    
     self.title = @"LINK YOUR CLAIM";
+    self.webApi = [[WebApiRequest alloc] init];
+}
+
+-(void) viewWillAppear:(BOOL)animated
+{
     
     [self.navigationController.navigationBar setBackgroundImage:[UIImage new]
                                                   forBarMetrics:UIBarMetricsDefault];
     //self.navigationController.navigationBar.shadowImage = [UIImage new];
     self.navigationController.navigationBar.translucent = YES;
     self.navigationController.view.backgroundColor = [UIColor clearColor];
-}
-
--(void) viewWillAppear:(BOOL)animated
-{
     self.navigationController.navigationBarHidden = NO;
     self.navigationController.navigationBar.tintColor = THEME_RED_COLOR;
     
-    self.inputBackView.backgroundColor = [UIColor clearColor];
     
     self.txtClaimNo.BordersFlag = DrawBordersBottom;
     self.txtClaimNo.BordersColor = [UIColor lightGrayColor];
@@ -54,7 +54,12 @@
     self.txtBirthDate.BordersColor = [UIColor lightGrayColor];
     self.txtBirthDate.BordersWidth = 1;
     
-    UIBarButtonItem *linkBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Link" style:UIBarButtonItemStyleBordered target:self action:@selector(linkBtnTapped)];
+   self.inputBackView.backgroundColor = [UIColor clearColor];
+    
+    UIBarButtonItem *linkBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Link"
+                                                                      style:UIBarButtonItemStyleBordered
+                                                                     target:self
+                                                                     action:@selector(linkBtnTapped)];
     self.navigationItem.rightBarButtonItem = linkBarButton;
     
     if(self.isLinkAdded)
@@ -70,11 +75,17 @@
         self.inputBackView.frame = CGRectMake(0, self.lblHead.frame.origin.y + self.lblHead.frame.size.height, self.inputBackView.frame.size.width, self.inputBackView.frame.size.height);
     }
     
+    self.txtBirthDate.delegate = self;
+    
+    self.txtClaimNo.text = @"01928384F";
+    self.txtBirthDate.text = @"1975-12-22";
     [self.txtClaimNo becomeFirstResponder];
 }
 
 -(void)linkBtnTapped
 {
+    NSLog(@"DEVICE ID : %@",[ApplicationData sharedInstance].deviceUUID);
+    
     if(![ApplicationData checkValidStringLengh:self.txtClaimNo.text])
     {
         [[ApplicationData sharedInstance] showAlert:ENTER_CLAIM_NUMBER andTag:101];
@@ -87,18 +98,28 @@
     }
     else
     {
-        NSDictionary *claimDict = @{
-                                    kClaimsNumber:self.txtClaimNo.text,
-                                    kClaimsDate:self.txtBirthDate.text
-                                    };
         
-        Claim *newClaim = [[MyDatabaseManager sharedManager] insertRecordInTable:TBL_CLAIM withDataDict:claimDict];
+        //NSLog(@"%hhd",[ApplicationData ConnectedToInternet]);
         
-        if(newClaim)
+        if([ApplicationData ConnectedToInternet])
         {
-            [self.txtClaimNo resignFirstResponder];
-            [self.txtBirthDate resignFirstResponder];
-            [self performSelector:@selector(showTransparentAlertView) withObject:self afterDelay:0.2];
+         [ProgressHudHelper showLoadingHudWithText:@""];
+         NSMutableDictionary *claimDict = @{
+                                    kCLAIM_NUMBER:self.txtClaimNo.text,
+                                    kBITH_DATE:self.txtBirthDate.text,
+                                    kDEVICE_ID:[ApplicationData offlineObjectForKey:DEVICE_UUID]
+                                    }.mutableCopy;
+        
+        // token for link claim a
+        [ApplicationData sharedInstance].tc_auth_token = LINK_TOKEN;
+        [self.webApi PostDataWithParameter:claimDict forDelegate:self
+                                    andTag:tLink
+                             forRequstType:reqLINK_CLAIM
+                               serviceType:WS_POST];
+        }
+        else
+        {
+            [[ApplicationData sharedInstance] showAlert:INTERNET_CONNECTION_ERROR andTag:0];
         }
     }
 }
@@ -121,24 +142,163 @@
     NSLog(@"Did close");
     self.isLinkAdded = YES;
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+
+-(void)showDatePickerForiPhone
+{
     
-//    NSArray *claims = [[MyDatabaseManager sharedManager] allRecordsSortByAttribute:nil fromTable:TBL_CLAIM];
-//    
-//    if(claims.count == 0)
-//    {
-//        HomeFirstTimeViewController *hfv = [self.storyboard instantiateViewControllerWithIdentifier:@"HomeFirstTimeViewController"];
-//        [self.navigationController popToViewController:hfv animated:YES];
-//        
-//        //[self performSegueWithIdentifier:@"FirstTimeUserSegueIdentifier" sender:nil];
-//    }
-//    else
-//    {
-//        HomeRegularViewController  *hrv = [self.storyboard instantiateViewControllerWithIdentifier:@"HomeRegularViewController"];
-//        [self.navigationController popToViewController:hrv animated:YES];
-//
-//        //[self performSegueWithIdentifier:@"RegularUserSegueIdentifier" sender:nil];
-//    }
+    actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+                                              delegate:nil
+                                     cancelButtonTitle:@""
+                                destructiveButtonTitle:nil
+                                     otherButtonTitles:nil];
     
+    //[actionSheet setActionSheetStyle:UIActionSheetStyleBlackTranslucent];
+    
+    UIToolbar *pickerTopToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 40)];
+    pickerTopToolbar.barStyle = UIBarStyleBlackTranslucent;
+    [pickerTopToolbar setTranslucent:YES];
+    pickerTopToolbar.tintColor = [UIColor lightGrayColor];
+    [pickerTopToolbar sizeToFit];
+    
+    NSMutableArray *barItems = [[NSMutableArray alloc] init];
+    
+    UIBarButtonItem *cancelBtn = [[UIBarButtonItem alloc]initWithTitle:@"Cancel" style:UIBarButtonItemStyleBordered target:self action:@selector(DatePickerCancelForIphone)];
+    [cancelBtn setTintColor:[UIColor whiteColor]];
+    UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+    UIBarButtonItem *doneBtn = [[UIBarButtonItem alloc]initWithTitle:@"Done" style:UIBarButtonItemStyleBordered target:self action:@selector(DatePickerDoneForIphone)];
+    [doneBtn setTintColor:[UIColor whiteColor]];
+    
+    [barItems addObject:cancelBtn];
+    [barItems addObject:flex];
+    [barItems addObject:doneBtn];
+    [pickerTopToolbar  setItems:barItems animated:YES];
+    
+    CGRect pickerFrame = CGRectMake(0,40,320,250);
+    datePicker = [[UIDatePicker alloc] initWithFrame:pickerFrame];
+    [datePicker addTarget:self action:@selector(dateChange:) forControlEvents:UIControlEventValueChanged];
+    datePicker.datePickerMode = UIDatePickerModeDate;
+    datePicker.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:datePicker];
+    
+    [actionSheet addSubview:pickerTopToolbar];
+    [actionSheet addSubview:datePicker];
+    [actionSheet showInView:self.view];
+    [actionSheet setBounds:CGRectMake(0,0,320,395)];
+}
+
+-(void)DatePickerDoneForIphone
+{
+    NSString *dateStr = [ApplicationData getStringFromDate:datePicker.date
+                                                  inFormat:@"yyyy-MM-dd"];
+    [self.txtBirthDate setText:dateStr];
+    [actionSheet dismissWithClickedButtonIndex:0 animated:YES];
+}
+
+-(void) DatePickerCancelForIphone
+{
+     [actionSheet dismissWithClickedButtonIndex:0 animated:YES];
+}
+
+-(void)dateChange:(id)sender
+{
+    NSString *dateStr = [ApplicationData getStringFromDate:datePicker.date
+                                                  inFormat:@"yyyy-MM-dd"];
+    [self.txtBirthDate setText:dateStr];
+}
+
+#pragma mark -
+#pragma mark webapi delegate
+-(void)setData:(NSMutableArray *)responseData :(NSString *)ErrorMsg withDelegate:(id)Delegate andTag:(int)Tag
+{
+    //NSLog(@"Response Data : %@",responseData);
+    
+   // [[MyDatabaseManager sharedManager] deleteAllRecordOfTable:TBL_LINK_CLAIM];
+    
+    @try{
+        
+        if ([ErrorMsg length]>0)
+        {
+            [ProgressHudHelper hideLoadingHud];
+            [[ApplicationData sharedInstance] showAlert:ErrorMsg andTag:0];
+        }
+        else
+        {
+            if (Tag == tLink)
+            {
+                if([[responseData valueForKey:@"response_message"] isEqualToString:@"success"])
+                {
+                    [self insertRecordInLocalDataBaseFromData:responseData];
+                }
+                else
+                {
+                    [ProgressHudHelper hideLoadingHud];
+                    [[ApplicationData sharedInstance] showAlert:[responseData valueForKey:@"response_message"] andTag:0];
+                }
+            }
+        }
+    }
+    @catch (NSException *exception)
+    {
+        
+    }
+    @finally
+    {
+        
+    }
+}
+
+-(void) insertRecordInLocalDataBaseFromData:(NSMutableArray *)responseData
+{
+    {
+        //NSLog(@"Response Data : %@",responseData);
+        
+            //NSLog(@"Now you can save the data to local database");
+            
+            //NSLog(@"CLAIM : %@",[[responseData valueForKey:@"linked_claim"] valueForKey:@"auth_token"]);
+            
+            NSDictionary *claimDict = [responseData valueForKey:@"linked_claim"];
+            
+            //NSLog(@"Dict To Save : %@",claimDict);
+            
+            NSString *todayDate = [ApplicationData getStringFromDate:[NSDate date] inFormat:DATETIME_FORMAT_DB];
+            NSString *accountID = [NSString stringWithFormat:@"%d",
+                                   [[claimDict valueForKey:kAccountID] intValue]
+                                   ];
+            NSString *claimNumber = [claimDict valueForKey:kClaimNumber];
+            NSString *accountName =  [claimDict valueForKey:kAccountName];
+            NSString *customerName = [claimDict valueForKey:kCustomerName];
+            NSString *accidentDate =  [claimDict valueForKey:kAccidentDate];
+            NSString *linkedAt = [claimDict valueForKey:kAccidentDate];
+            NSString *authToken = [claimDict valueForKey:kAuthToken];
+            NSString *saveOnDate = todayDate;
+            
+            NSMutableDictionary *saveClaim = [NSMutableDictionary dictionary];
+            [saveClaim setValue:accountID forKey:kAccountID];
+            [saveClaim setValue:claimNumber forKey:kClaimNumber];
+            [saveClaim setValue:accountName forKey:kAccountName];
+            [saveClaim setValue:customerName forKey:kCustomerName];
+            [saveClaim setValue:accidentDate forKey:kAccidentDate];
+            [saveClaim setValue:linkedAt forKey:kLinkedAt];
+            [saveClaim setValue:authToken forKey:kAuthToken];
+            [saveClaim setValue:saveOnDate forKey:kCreateAt];
+            
+            NSLog(@"Dict To Save : %@",saveClaim);
+            
+            LinkToClaim *newClaim = [[MyDatabaseManager sharedManager] insertRecordInTable:TBL_LINK_CLAIM withDataDict:saveClaim];
+            
+            if(newClaim)
+            {
+                NSLog(@"ADDED TO LOCAL SUCCESSFULLY");
+                
+                [ProgressHudHelper hideLoadingHud];
+                
+                [self.txtClaimNo resignFirstResponder];
+                [self.txtBirthDate resignFirstResponder];
+                [self performSelector:@selector(showTransparentAlertView) withObject:self afterDelay:0.2];
+            }
+    }
 }
 
 #pragma mark -
@@ -149,6 +309,21 @@
     [textField resignFirstResponder];
     return YES;
 }
+
+-(void) textFieldDidBeginEditing:(UITextField *)textField
+{
+    if(textField == self.txtBirthDate)
+    {
+       // [self.txtClaimNo resignFirstResponder];
+        [self.txtBirthDate resignFirstResponder];
+        
+        //[self performSelector:@selector(showDatePickerForiPhone) withObject:nil afterDelay:0.3];
+        
+        [self showDatePickerForiPhone];
+    }
+}
+
+ /*
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
@@ -257,6 +432,8 @@
     
     return [[NSString stringWithUTF8String:outputString] mutableCopy];
 }
+
+*/
 
 - (void)didReceiveMemoryWarning
 {

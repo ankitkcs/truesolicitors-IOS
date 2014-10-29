@@ -7,11 +7,19 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DocumentDetail.h"
 
 @interface LetterReadViewController : UIViewController
 {
     
 }
+
+@property(nonatomic,retain) DocumentDetail *selDocDetail;
+@property (nonatomic,strong) WebApiRequest *webApi;
+@property (strong,nonatomic) LinkToClaim *selClaim;
+
+@property(nonatomic,weak) IBOutlet UIWebView *webView;
+
 @property(nonatomic,weak) IBOutlet UITextView *msgTextView;
 - (IBAction)btnNextTapped:(id)sender;
 

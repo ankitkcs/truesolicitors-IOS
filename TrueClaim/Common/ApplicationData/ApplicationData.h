@@ -8,9 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import "Reachability.h"
-#import "ProductMaster.h"
-#import "OrderDetails.h"
-#import "OrderHistory.h"
+#import "LinkToClaim.h"
+#import "DocumentDetail.h"
+
 
 #define DATETIME_FORMATTER_DISPLAY [ApplicationData sharedInstance].displayDateTimeFormatter
 #define DATE_FORMATTER_DISPLAY [ApplicationData sharedInstance].displayDateFormatter
@@ -86,6 +86,10 @@
 @property (nonatomic,retain) NSString *loggerPosUserId;
 
 @property (nonatomic,retain) NSString *navigateFromView;
+@property (nonatomic,retain) NSString *tc_auth_token; // true calim auth token
+
+@property (nonatomic,retain) LinkToClaim *selectedClaim;
+@property (nonatomic,retain) DocumentDetail *selectedDocDetail;
 
 
 + (ApplicationData *)sharedInstance;
@@ -129,7 +133,7 @@
 +(UIButton*)customBackNavButtonWithTite:(NSString*)buttonTitle icon:(UIImage*)iconImage bgColor:(UIColor*)color titleColor:(UIColor*)tcolor titleFont:(UIFont*)font buttonSize:(CGRect)btnFrame;
 
 //Ranjit - String Formatting
-+(NSString *) getStringFromDate:(NSDate*) myDate andFormt:(NSString*)formatString;
++(NSString *) getStringFromDate:(NSDate*)myDate inFormat:(NSString*)formatString;
 + (NSArray *) getCommaSeparatedValues:(NSString *)string;
 + (NSArray *) getSeparatedValuesFromString:(NSString *)string andSeparator:(NSString *)seperator;
 

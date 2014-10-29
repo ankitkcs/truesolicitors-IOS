@@ -12,4 +12,8 @@
 @property(nonatomic,weak) IBOutlet UIImageView *docImageView;
 @property(nonatomic,weak) IBOutlet UILabel *lblDate;
 @property(nonatomic,weak) IBOutlet UILabel *lblDocName;
+
+@property(nonatomic,weak) IBOutlet UIImageView *docImgRead;
+@property(nonatomic,weak) IBOutlet UIImageView *docImgAction;
+
 @end

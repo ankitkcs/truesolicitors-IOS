@@ -13,6 +13,22 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    
+    //get and save the uuid
+//    if([ApplicationData sharedInstance].deviceUUID == nil)
+//    {
+//        NSString *getUUID = [ApplicationData uuid];
+//        [ApplicationData setOfflineObject:getUUID forKey:DEVICE_UUID];
+//    }
+    
+    if([ApplicationData offlineObjectForKey:DEVICE_UUID] == nil)
+    {
+        NSString *getUUID = [ApplicationData uuid];
+        [ApplicationData setOfflineObject:getUUID forKey:DEVICE_UUID];
+    }
+    
+    NSLog(@"SAVED UUID : %@",[ApplicationData offlineObjectForKey:DEVICE_UUID]);
+    
     // Override point for customization after application launch.
 //    UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
 //    HomeViewController *introViewController = [storyBoard instantiateViewControllerWithIdentifier:@"HomeViewController"];

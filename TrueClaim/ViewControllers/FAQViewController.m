@@ -18,7 +18,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.view.backgroundColor = APP_BACKGROUND_IMAGE;
+    //self.view.backgroundColor = APP_BACKGROUND_IMAGE;
     
     //FAQInTableViewController *faqTable = [self.storyboard instantiateViewControllerWithIdentifier:@"FAQInTableViewController"];
     

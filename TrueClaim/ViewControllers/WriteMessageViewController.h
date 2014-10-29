@@ -10,6 +10,12 @@
 
 @interface WriteMessageViewController : UIViewController
 
+@property (nonatomic,strong) WebApiRequest *webApi;
+@property (strong,nonatomic) LinkToClaim *selClaim;
+
+@property (nonatomic,weak) IBOutlet UITextView *msgTextView;
+@property (nonatomic,weak) IBOutlet UILabel *lblClaimHead;
+
 -(IBAction)btnCancelClick:(id)sender;
 -(IBAction)btnSendClick:(id)sender;
 

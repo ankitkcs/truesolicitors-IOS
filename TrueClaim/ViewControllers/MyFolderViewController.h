@@ -17,6 +17,10 @@ RKMTransViewDelegate
 >
 @property (strong, nonatomic) RKMTransView *transparentView;
 @property (strong, nonatomic) IBOutlet UIView *containerView;
-@property (nonatomic,strong) IBOutlet UITableView *tblMessage;
+@property (nonatomic,strong) IBOutlet UITableView *tblDocumnets;
 @property(nonatomic,readwrite)BOOL viewLoaded;
+@property(nonatomic,strong) NSMutableArray *allDocuments;
+
+@property (nonatomic,strong) WebApiRequest *webApi;
+@property (strong,nonatomic) LinkToClaim *selClaim;
 @end

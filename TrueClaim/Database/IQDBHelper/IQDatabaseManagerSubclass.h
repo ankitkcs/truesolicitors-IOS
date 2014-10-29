@@ -43,6 +43,8 @@
 #pragma mark - First/Last object
 
 
+
+
 /*First object*/
 - (NSManagedObject *)firstObjectFromTable:(NSString*)tableName;
 - (NSManagedObject *)firstObjectFromTable:(NSString*)tableName createIfNotExist:(BOOL)create;
