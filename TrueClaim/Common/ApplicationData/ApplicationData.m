@@ -45,6 +45,8 @@
 @synthesize tc_auth_token;
 @synthesize selectedClaim;
 @synthesize selectedDocDetail;
+@synthesize isReloadMyFolderData;
+
 
 + (ApplicationData *)sharedInstance {
     
@@ -372,25 +374,63 @@
 }
 
 
-#pragma mark ------------------------------------
-#pragma mark String Formatting
+#pragma mark -------------------------------
+#pragma mark Date Formatting
 #pragma mark -------------------------------
 
-+(NSString *) getStringFromDate:(NSDate*)myDate inFormat:(NSString*)formatString
++(NSString *) getStringFromDate:(NSDate*)myDate inFormat:(NSString*)formatString WithAM:(BOOL)isAM
 {
     NSDateFormatter * formatter = [[NSDateFormatter alloc]init];
     [formatter setDateFormat:formatString];
-    [formatter setAMSymbol:@"am"];
-    [formatter setPMSymbol:@"pm"];
+    
+    if(isAM)
+    {
+        [formatter setAMSymbol:@"AM"];
+        [formatter setPMSymbol:@"PM"];
+    }
+    else
+    {
+        [formatter setAMSymbol:@"am"];
+        [formatter setPMSymbol:@"am"];
+    }
+    
     NSString *strDate = [formatter stringFromDate:myDate];
-    NSLog(@"Selected Date  : %@",strDate);
+    //NSLog(@"Selected Date  : %@",strDate);
     return strDate;
 }
 
-+ (void) syncUserDefaults
++(NSDate *) getDateFromString:(NSString*)myDateString withFormat:(NSString*)formatString
 {
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:formatString];
+    NSDate *date = [dateFormat dateFromString:myDateString];
+    return date;
 }
+
++(NSDate *) getPreviuosDatebyBackDay:(int)numOfBackDay
+{
+    //A day is 86400 seconds long
+    
+    NSDate *backDate = [NSDate dateWithTimeIntervalSinceNow:-84000*numOfBackDay];
+    return backDate;
+}
+
++(NSDate *) getFurthurDatebyNextDay:(int)numONextDay
+{
+    NSDate *furthurDate = [NSDate dateWithTimeIntervalSinceNow:+84000*numONextDay];
+    return furthurDate;
+}
+
+
+//+ (void) syncUserDefaults
+//{
+//    [[NSUserDefaults standardUserDefaults] synchronize];
+//}
+
+
+#pragma mark ------------------------------------
+#pragma mark String Formatting
+#pragma mark -------------------------------
 
 + (NSArray *) getCommaSeparatedValues:(NSString *)string {
     
@@ -398,7 +438,8 @@
     return valuesArray;
 }
 
-+ (NSArray *) getSeparatedValuesFromString:(NSString *)string andSeparator:(NSString *)seperator {
++ (NSArray *) getSeparatedValuesFromString:(NSString *)string andSeparator:(NSString *)seperator
+{
     
     NSArray *valuesArray = [string componentsSeparatedByString:seperator];
     return valuesArray;

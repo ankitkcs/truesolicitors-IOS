@@ -9,6 +9,7 @@
 #import "LinkClaimViewController.h"
 #import "HomeRegularViewController.h"
 #import "UIView+RKBorder.h"
+#import "WTReTextField.h"
 
 @interface LinkClaimViewController ()
 
@@ -36,15 +37,20 @@
 
 -(void) viewWillAppear:(BOOL)animated
 {
+    self.txtBirthDate.pattern = @"^[1-9][0-9]{3}(?:-)(1[0-2]|(?:0)[1-9])(?:-)(3[0-1]|[1-2][0-9]|(?:0)[1-9])$";
     
-    [self.navigationController.navigationBar setBackgroundImage:[UIImage new]
-                                                  forBarMetrics:UIBarMetricsDefault];
-    //self.navigationController.navigationBar.shadowImage = [UIImage new];
-    self.navigationController.navigationBar.translucent = YES;
-    self.navigationController.view.backgroundColor = [UIColor clearColor];
-    self.navigationController.navigationBarHidden = NO;
-    self.navigationController.navigationBar.tintColor = THEME_RED_COLOR;
+    self.navBarBackView.backgroundColor = [UIColor clearColor];
+    self.headBackView.backgroundColor = [UIColor clearColor];
+    self.inputBackView.backgroundColor = [UIColor clearColor];
     
+    if([self.showViewFor isEqualToString:@"RESETCODE"])
+    {
+        [self setUpViewForResetPasscode];
+    }
+    else
+    {
+         [self setUpViewForLinkingClaim];
+    }
     
     self.txtClaimNo.BordersFlag = DrawBordersBottom;
     self.txtClaimNo.BordersColor = [UIColor lightGrayColor];
@@ -54,14 +60,6 @@
     self.txtBirthDate.BordersColor = [UIColor lightGrayColor];
     self.txtBirthDate.BordersWidth = 1;
     
-   self.inputBackView.backgroundColor = [UIColor clearColor];
-    
-    UIBarButtonItem *linkBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Link"
-                                                                      style:UIBarButtonItemStyleBordered
-                                                                     target:self
-                                                                     action:@selector(linkBtnTapped)];
-    self.navigationItem.rightBarButtonItem = linkBarButton;
-    
     if(self.isLinkAdded)
     {
         self.isLinkAdded = NO;
@@ -70,9 +68,9 @@
     
     if(!IS_IPHONE_5)
     {
-        self.lblHead.frame = CGRectMake(20, 60, self.lblHead.frame.size.width,self.lblHead.frame.size.height);
-        
-        self.inputBackView.frame = CGRectMake(0, self.lblHead.frame.origin.y + self.lblHead.frame.size.height, self.inputBackView.frame.size.width, self.inputBackView.frame.size.height);
+        self.headBackView .frame = CGRectMake(0, 60, self.headBackView.frame.size.width,self.headBackView.frame.size.height - 15);
+        self.inputBackView.frame = CGRectMake(0, CGRectGetMaxY(self.headBackView .frame), self.inputBackView.frame.size.width, self.inputBackView.frame.size.height);
+    
     }
     
     self.txtBirthDate.delegate = self;
@@ -80,6 +78,92 @@
     self.txtClaimNo.text = @"01928384F";
     self.txtBirthDate.text = @"1975-12-22";
     [self.txtClaimNo becomeFirstResponder];
+    
+}
+
+-(void)setUpViewForResetPasscode
+{
+    self.navigationController.navigationBarHidden = YES;
+    
+    self.navBarBackView.hidden = NO;
+    self.navBarBackView.BordersFlag =  DrawBordersBottom;
+    self.navBarBackView.BordersColor = [UIColor lightGrayColor];
+    self.navBarBackView.BordersWidth = 1;
+    
+    self.lblHeadTitle.hidden = NO;
+    
+    if(!IS_IPHONE_5)
+    {
+        self.headBackView .frame = CGRectMake(0, 40, self.headBackView.frame.size.width,self.headBackView.frame.size.height);
+        self.inputBackView.frame = CGRectMake(0, CGRectGetMaxY(self.headBackView .frame), self.inputBackView.frame.size.width, self.inputBackView.frame.size.height);
+        
+    }
+
+    self.lblHeadTitle.text = @"Reset your security code";
+    self.lblHead.text = @"Please enter your Claim Number and Date of Birth to resset:";
+}
+
+
+-(void) setUpViewForLinkingClaim
+{
+    [self.navigationController.navigationBar setBackgroundImage:[UIImage new]
+                                                  forBarMetrics:UIBarMetricsDefault];
+    //self.navigationController.navigationBar.shadowImage = [UIImage new];
+    self.navigationController.navigationBar.translucent = YES;
+    self.navigationController.view.backgroundColor = [UIColor clearColor];
+    self.navigationController.navigationBarHidden = NO;
+    self.navigationController.navigationBar.tintColor = THEME_RED_COLOR;
+    
+    UIBarButtonItem *linkBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Link"
+                                                                      style:UIBarButtonItemStyleBordered
+                                                                     target:self
+                                                                     action:@selector(linkBtnTapped)];
+    self.navigationItem.rightBarButtonItem = linkBarButton;
+    
+    self.navBarBackView.hidden = YES;
+    
+    self.lblHeadTitle.hidden = YES;
+    self.lblHeadTitle.text = @"Link a new Claim";
+    self.lblHead.text = @"In order to access your claim please enter your:";
+}
+
+-(IBAction)btnNavBackClick:(id)sender
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(IBAction)btnNavSubmitClick:(id)sender
+{
+    //check input and display popup for reset passcode
+    
+    NSString *findClaimNumber = self.txtClaimNo.text;
+    NSString *findBirthDate = self.txtBirthDate.text;
+    
+    NSArray *getCliamNumber = [[MyDatabaseManager sharedManager] allRecordsSortByAttribute:kClaimNumber where:kClaimNumber contains:findClaimNumber byAcending:YES fromTable:TBL_LINK_CLAIM isSame:YES];
+    
+    NSLog(@"Found Claim Number : %d",getCliamNumber.count);
+    
+    NSArray *getBirthDate = [[MyDatabaseManager sharedManager] allRecordsSortByAttribute:kClaimBirthDate where:kClaimBirthDate contains:findBirthDate byAcending:YES fromTable:TBL_LINK_CLAIM isSame:YES];
+    
+    NSLog(@"Found Claim BirthDate : %d",getBirthDate.count);
+
+    
+    if(getCliamNumber.count == 0 || getBirthDate.count == 0)
+    {
+        [[ApplicationData sharedInstance] showAlert:@"Invalid input details" andTag:0];
+    }
+    else
+    {
+        [self.txtClaimNo resignFirstResponder];
+        [self.txtBirthDate resignFirstResponder];
+        
+        [self showCustomAlertWithTitle:@"Password Reset!"
+                            alertImage:[UIImage imageNamed:@"ios_padlock_icon.png"]
+                              alertMsg:[NSString stringWithFormat:RESET_PASSCODE]
+                                andTag:112];
+        
+    }
+    
 }
 
 -(void)linkBtnTapped
@@ -98,7 +182,6 @@
     }
     else
     {
-        
         //NSLog(@"%hhd",[ApplicationData ConnectedToInternet]);
         
         if([ApplicationData ConnectedToInternet])
@@ -124,37 +207,57 @@
     }
 }
 
--(void) showTransparentAlertView
+
+-(void) showTransparentAlertViewForUser:(NSString *)customerName
 {
+    NSString *welcomeCustomer = [NSString stringWithFormat:@"Welcome, %@",customerName];
+    [self showCustomAlertWithTitle:welcomeCustomer
+                        alertImage:[UIImage imageNamed:LINK_IMAGE]
+                          alertMsg:[NSString stringWithFormat:CLAIM_LINKED_SUCCESS,self.txtClaimNo.text]
+                            andTag:111];
+}
+
+
+-(void) showCustomAlertWithTitle:(NSString*)tile alertImage:(UIImage*)image alertMsg:(NSString*)msgText andTag:(int)tagval
+{
+    
     self.transparentView = [[RKMTransView alloc] init];
     self.transparentView.delegate = self;
     self.transparentView.backgroundColor = [UIColor clearColor];
-    self.transparentView.allowBlurView = YES;
-    
-    self.transparentView.alertTitle = @"Welcome, Mr Sommerville";
-    self.transparentView.alertImage = [UIImage imageNamed:LINK_IMAGE];
-    self.transparentView.alertMessage = [NSString stringWithFormat:CLAIM_LINKED_SUCCESS,self.txtClaimNo.text];
+    self.transparentView.allowBlurView  = YES;
+    self.transparentView.hideCloseButton = YES;
+    self.transparentView.tag = tagval;
+    self.transparentView.alertTitle = tile;
+    self.transparentView.alertImage = image;
+    self.transparentView.alertMessage = msgText;
     [self.transparentView open];
 }
 
+
 - (void)RKMTransViewDidClosed
 {
-    NSLog(@"Did close");
-    self.isLinkAdded = YES;
-    [self.navigationController popViewControllerAnimated:YES];
+    if(self.transparentView.tag == 111)
+    {
+        NSLog(@"Did close");
+        self.isLinkAdded = YES;
+        [self.navigationController popViewControllerAnimated:YES];
+    }
+    else if(self.transparentView.tag == 112)
+    {
+        // clear saved details and dissminss link view
+        [ApplicationData removeOfflineObjectForKey:SAVED_PASSCODE];
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
 
 -(void)showDatePickerForiPhone
 {
-    
     actionSheet = [[UIActionSheet alloc] initWithTitle:nil
                                               delegate:nil
                                      cancelButtonTitle:@""
                                 destructiveButtonTitle:nil
                                      otherButtonTitles:nil];
-    
-    //[actionSheet setActionSheetStyle:UIActionSheetStyleBlackTranslucent];
     
     UIToolbar *pickerTopToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 40)];
     pickerTopToolbar.barStyle = UIBarStyleBlackTranslucent;
@@ -191,7 +294,8 @@
 -(void)DatePickerDoneForIphone
 {
     NSString *dateStr = [ApplicationData getStringFromDate:datePicker.date
-                                                  inFormat:@"yyyy-MM-dd"];
+                                                  inFormat:@"yyyy-MM-dd"
+                                                    WithAM:NO ];
     [self.txtBirthDate setText:dateStr];
     [actionSheet dismissWithClickedButtonIndex:0 animated:YES];
 }
@@ -204,7 +308,8 @@
 -(void)dateChange:(id)sender
 {
     NSString *dateStr = [ApplicationData getStringFromDate:datePicker.date
-                                                  inFormat:@"yyyy-MM-dd"];
+                                                  inFormat:@"yyyy-MM-dd"
+                                                    WithAM:NO];
     [self.txtBirthDate setText:dateStr];
 }
 
@@ -252,7 +357,7 @@
 -(void) insertRecordInLocalDataBaseFromData:(NSMutableArray *)responseData
 {
     {
-        //NSLog(@"Response Data : %@",responseData);
+           NSLog(@"Response Data : %@",responseData);
         
             //NSLog(@"Now you can save the data to local database");
             
@@ -262,13 +367,16 @@
             
             //NSLog(@"Dict To Save : %@",claimDict);
             
-            NSString *todayDate = [ApplicationData getStringFromDate:[NSDate date] inFormat:DATETIME_FORMAT_DB];
+            NSString *todayDate = [ApplicationData getStringFromDate:[NSDate date]
+                                                            inFormat:DATETIME_FORMAT_DB
+                                                              WithAM:NO];
             NSString *accountID = [NSString stringWithFormat:@"%d",
                                    [[claimDict valueForKey:kAccountID] intValue]
                                    ];
             NSString *claimNumber = [claimDict valueForKey:kClaimNumber];
             NSString *accountName =  [claimDict valueForKey:kAccountName];
             NSString *customerName = [claimDict valueForKey:kCustomerName];
+            NSString *custBirthDate = [claimDict valueForKey:kClaimBirthDate];
             NSString *accidentDate =  [claimDict valueForKey:kAccidentDate];
             NSString *linkedAt = [claimDict valueForKey:kAccidentDate];
             NSString *authToken = [claimDict valueForKey:kAuthToken];
@@ -277,6 +385,7 @@
             NSMutableDictionary *saveClaim = [NSMutableDictionary dictionary];
             [saveClaim setValue:accountID forKey:kAccountID];
             [saveClaim setValue:claimNumber forKey:kClaimNumber];
+            [saveClaim setValue:custBirthDate forKey:kClaimBirthDate];
             [saveClaim setValue:accountName forKey:kAccountName];
             [saveClaim setValue:customerName forKey:kCustomerName];
             [saveClaim setValue:accidentDate forKey:kAccidentDate];
@@ -296,7 +405,9 @@
                 
                 [self.txtClaimNo resignFirstResponder];
                 [self.txtBirthDate resignFirstResponder];
-                [self performSelector:@selector(showTransparentAlertView) withObject:self afterDelay:0.2];
+                [self performSelector:@selector(showTransparentAlertViewForUser:)
+                           withObject:customerName
+                           afterDelay:0.2];
             }
     }
 }
@@ -315,22 +426,24 @@
     if(textField == self.txtBirthDate)
     {
        // [self.txtClaimNo resignFirstResponder];
-        [self.txtBirthDate resignFirstResponder];
         
-        //[self performSelector:@selector(showDatePickerForiPhone) withObject:nil afterDelay:0.3];
-        
-        [self showDatePickerForiPhone];
+        //[self.txtBirthDate resignFirstResponder];
+        //[self showDatePickerForiPhone];
     }
 }
 
- /*
+-(void) textFieldDidEndEditing:(UITextField *)textField
+{
+    NSLog(@"Text Field Text After End : %@",textField);
+}
 
+/*
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
 
     if(textField == self.txtBirthDate)
     {
-        NSString *filter = @"## - ## - ##";
+        NSString *filter = @"#### - ## - ##";
     
         if(!filter) // No filter provided, allow anything
         {
@@ -434,7 +547,6 @@
 }
 
 */
-
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];

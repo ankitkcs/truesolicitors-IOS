@@ -14,6 +14,7 @@
 
 @property (nonatomic, retain) NSString * account_id;
 @property (nonatomic, retain) NSString * claim_number;
+@property (nonatomic, retain) NSString * customer_date_of_birth;
 @property (nonatomic, retain) NSString * account_name;
 @property (nonatomic, retain) NSString * customer_name;
 @property (nonatomic, retain) NSString * accident_date;

@@ -49,7 +49,8 @@
 
 @property (nonatomic, readwrite) BOOL isNotificationClicked;
 @property (nonatomic, readwrite) BOOL isDisply_PassCodeScreen;
-@property(nonatomic, readwrite) BOOL isPasscodeSaved;
+@property (nonatomic, readwrite) BOOL isPasscodeSaved;
+@property (nonatomic, readwrite) BOOL isReloadMyFolderData;
 
 @property(nonatomic, retain) Reachability* reachability;
 
@@ -132,11 +133,18 @@
 +(UIButton*)customButtonWithIconAndTitle:(NSString*)buttonTitle icon:(UIImage*)iconImage iconAlign:(NSString*)align bgColor:(UIColor*)color titleColor:(UIColor*)tcolor titleFont:(UIFont*)font buttonSize:(CGRect)btnFrame;
 +(UIButton*)customBackNavButtonWithTite:(NSString*)buttonTitle icon:(UIImage*)iconImage bgColor:(UIColor*)color titleColor:(UIColor*)tcolor titleFont:(UIFont*)font buttonSize:(CGRect)btnFrame;
 
+
 //Ranjit - String Formatting
-+(NSString *) getStringFromDate:(NSDate*)myDate inFormat:(NSString*)formatString;
+
 + (NSArray *) getCommaSeparatedValues:(NSString *)string;
 + (NSArray *) getSeparatedValuesFromString:(NSString *)string andSeparator:(NSString *)seperator;
 
+
+//Ranjit - Date Formatting
++(NSString *) getStringFromDate:(NSDate*)myDate inFormat:(NSString*)formatString WithAM:(BOOL)isAM;
++(NSDate *) getDateFromString:(NSString*)myDateString withFormat:(NSString*)formatString;
++(NSDate *) getPreviuosDatebyBackDay:(int)numOfBackDay;
++(NSDate *) getFurthurDatebyNextDay:(int)numONextDay;
 
 //Ranjit - Image Customization
 + (UIImage*) resizeImage:(UIImage*)image scaledToSize:(CGSize)newSize;

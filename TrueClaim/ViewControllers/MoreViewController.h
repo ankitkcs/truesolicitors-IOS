@@ -9,10 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface MoreViewController : UITableViewController
+@property(nonatomic, strong) NSString *showDetailsFor;
 
--(IBAction)aboutTrueClick:(id)sender;
--(IBAction)whyTrueClick:(id)sender;
--(IBAction)injuryTypeClick:(id)sender;
-
-
+@property(nonatomic,strong) NSArray *moreArr;
 @end

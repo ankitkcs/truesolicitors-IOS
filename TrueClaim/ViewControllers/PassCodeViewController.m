@@ -8,6 +8,8 @@
 
 #import "PassCodeViewController.h"
 #import "UIView+RKBorder.h"
+#import "LinkClaimViewController.h"
+#import "MyFolderViewController.h"
 
 @interface PassCodeViewController ()
 
@@ -18,7 +20,8 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
+    if (self)
+    {
         // Custom initialization
     }
     return self;
@@ -39,64 +42,109 @@
 
 -(void)viewWillAppear:(BOOL)animated
 {
+//    //getSavedPassword
+//    NSString *checkAppRun = [ApplicationData offlineObjectForKey:FIRST_RUN];
+//    if([checkAppRun isEqualToString:@"running_first_time"] || checkAppRun == nil)
+//    {
+//        [self showCustomAlertWithTitle:@"Welcome to My Folder"
+//                            alertImage:[UIImage imageNamed:@"ios_folder_popup_icon.png"]
+//                              alertMsg:@"This is where you can store, view and respond to the documnets we send you."
+//                                andTag:331];
+//        
+//        return;
+//    }
+//    else
+//    {
+//        [self showViewAfterWelcomerScreen];
+//        [self.hiddenText becomeFirstResponder];
+//    }
+
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    //getSavedPassword
+    NSString *checkAppRun = [ApplicationData offlineObjectForKey:FIRST_RUN];
+    if([checkAppRun isEqualToString:@"running_first_time"] || checkAppRun == nil)
+    {
+        [self showCustomAlertWithTitle:@"Welcome to My Folder"
+                            alertImage:[UIImage imageNamed:@"ios_folder_popup_icon.png"]
+                              alertMsg:@"This is where you can store, view and respond to the documnets we send you."
+                                andTag:331];
+        
+        return;
+    }
+    else
+    {
+        [self showViewAfterWelcomerScreen];
+        [self.hiddenText becomeFirstResponder];
+    }
+
+}
+
+-(void) showViewAfterWelcomerScreen
+{
     self.passInputBackView.backgroundColor = [UIColor clearColor];
     
+       if(!IS_IPHONE_5)
+        {
+            self.passInputBackView.frame = CGRectMake(0, 0 , self.passInputBackView.frame.size.width, self.passInputBackView.frame.size.height - 10);
+            self.rememberBackView.frame = CGRectMake(0, CGRectGetMaxY(self.passInputBackView.frame) , self.rememberBackView.frame.size.width, self.rememberBackView.frame.size.height);
+            self.btnForgotPass.frame = self.rememberBackView.frame;
+        }
+    
     isNewPass = YES;
-    isConfirmPass = YES;
+    //isConfirmPass = YES;
     [self resetInitialPassView];
     
-    if(!IS_IPHONE_5)
-    {
-        self.passInputBackView.frame = CGRectMake(0, self.fakeNavBarView.frame.size.height + 20 , self.passInputBackView.frame.size.width, self.passInputBackView.frame.size.height - 10);
-        self.rememberBackView.frame = CGRectMake(0,self.passInputBackView.frame.origin.y + self.passInputBackView.frame.size.height, self.rememberBackView.frame.size.width, self.rememberBackView.frame.size.height);
-    }
-    
-    UIColor *borderColor = [UIColor lightGrayColor];
-    
-    self.fakeNavBarView.BordersFlag = DrawBordersBottom;
-    self.fakeNavBarView.BordersColor = borderColor;
-    self.fakeNavBarView.BordersWidth = 1;
-    
-    
     self.rememberBackView.BordersFlag = DrawBordersTop | DrawBordersBottom;
-    self.rememberBackView.BordersColor = borderColor;
+    self.rememberBackView.BordersColor = [UIColor lightGrayColor];
     self.rememberBackView.BordersWidth = 1;
     
     // check saved password
-    
     NSString *savedPass = [ApplicationData offlineObjectForKey:SAVED_PASSCODE];
     
-    if(savedPass != nil)
+    if(savedPass == nil)
     {
-        self.lblTitle.text = @"ENTER PASSCODE";
-        self.passMessage.text = @"please enter your personal 4 digit passcode";
-        //self.rememberBackView.hidden = YES;
-        self.btnSave.hidden = YES;
-        self.btnCancel.hidden = YES;
-        // add Submit Button
-        UIButton *submitBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-        submitBtn.frame = CGRectMake(260, 10, 50, 30);
-        [submitBtn setTitle:@"Submit" forState:UIControlStateNormal];
-        [submitBtn titleLabel].textColor = THEME_RED_COLOR;
-        [submitBtn addTarget:self action:@selector(btnSubmitClick) forControlEvents:UIControlEventTouchUpInside];
-        [self.fakeNavBarView addSubview:submitBtn];
-        
-        self.lblRemember.hidden = YES;
-        self.lblYouWill.hidden = YES;
-        
-        UIButton *forgotBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-        forgotBtn.frame = CGRectMake(60, 15, 200, 30);
-        [forgotBtn setTitle:@"Forgotten passcode?" forState:UIControlStateNormal];
-        [forgotBtn titleLabel].textColor = [UIColor grayColor];
-        //[forgotBtn addTarget:self action:@selector(btnSubmitClick) forControlEvents:UIControlEventTouchUpInside];
-        [self.rememberBackView addSubview:forgotBtn];
+        [self setUpViewForSettingPassword];
+    }
+    else
+    {
+        [self setUpViewForRegularPassword];
     }
 }
+
+
+-(void) setUpViewForSettingPassword
+{
+    self.navigationItem.title = @"CREATE PASSCODE";
+    self.passMessage.text = @"please create a 4 digit passcode to aaccess Your Folder";
+    self.btnSave.title = @"Save";
+    self.rememberBackView.hidden = NO;
+    self.btnForgotPass.hidden = YES;
+}
+
+
+-(void) setUpViewForRegularPassword
+{
+    self.navigationItem.title = @"ENTER PASSCODE";
+    self.passMessage.text = @"please enter your personal 4 digit passcode";
+    self.btnSave.title = @"Submit";
+    self.rememberBackView.hidden = YES;
+    self.btnForgotPass.hidden = NO;
+}
+
+-(IBAction)btnForgotPassClick:(id)sender
+{
+    [self performSegueWithIdentifier:@"PASSCODE_TO_LINK" sender:self];
+}
+
 
 -(void) resetInitialPassView
 {
     _chk = false;
     charCounter = 0;
+    self.btnSave.enabled = NO;
     
     [self createEmptyRoundLabel:_l1];
     [self createEmptyRoundLabel:_l2];
@@ -111,19 +159,64 @@
 
 - (IBAction)btnCancel:(id)sender
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    //[self dismissViewControllerAnimated:YES completion:nil];
+    self.tabBarController.selectedIndex = 0;
 }
 
 - (IBAction)btnSave:(id)sender
 {
+    UIBarButtonItem *barButton = (UIBarButtonItem*)sender;
+    if([barButton.title isEqualToString:@"Submit"])
+    {
+        [self submittPasswordAndGotoMyFolderView];
+    }
+    else  if([barButton.title isEqualToString:@"Save"])
+    {
+        [self savePasswordForSetting];
+    }
+}
+
+-(void) savePasswordForSetting
+{
     // first passcode
     if(self.hiddenText.text.length == 4 && isNewPass == YES)
     {
-       enterPasscode = self.hiddenText.text;
-       isNewPass = NO;
-       [self resetInitialPassView];
-       self.passMessage.text = @"Please confirm your password again";
+        enterPasscode = self.hiddenText.text;
+        isNewPass = NO;
+        
+        //[self resetInitialPassView];
+        //self.passMessage.text = @"Please confirm your password again";
+        NSLog(@"PASSWORD : %@",enterPasscode);
+        
+        [ApplicationData setOfflineObject:enterPasscode forKey:SAVED_PASSCODE];
+        
+        [self showCustomAlertWithTitle:@"Passcode Saved!"
+                            alertImage:[UIImage imageNamed:@"ios_tick_popup_icon.png"]
+                              alertMsg:@"Please make sure you remember your 4 digit passcode."
+                                andTag:333];
+    }
+    else
+    {
+        [[ApplicationData sharedInstance]showAlert:@"Please input four digit password" andTag:0];
+        isNewPass = YES;
+        [self resetInitialPassView];
+    }
+}
+
+
+
+/*
+-(void) savePasswordForSettingWithConfirmation
+{
+    // first passcode
+    if(self.hiddenText.text.length == 4 && isNewPass == YES)
+    {
+        enterPasscode = self.hiddenText.text;
+        isNewPass = NO;
+        [self resetInitialPassView];
+        self.passMessage.text = @"Please confirm your password again";
         //NSLog(@"PASSWORD : %@",enterPasscode);
+         self.btnSave.title = @"ReSave";
     }
     
     // confirm passcode
@@ -136,13 +229,16 @@
     
     if(isNewPass == NO && isConfirmPass == NO) // both are inputed
     {
-        if([enterPasscode isEqualToString:confirmPasscode])
+        if([enterPasscode isEqualToString:confirmPasscode]) // if pascode and confirm match
         {
-            //[self.hiddenText resignFirstResponder];
-            //[self dismissViewControllerAnimated:YES completion:nil];
-            
             [ApplicationData setOfflineObject:confirmPasscode forKey:SAVED_PASSCODE];
-            [self showPassCodeSaveSucessAlertView];
+            
+            [self showCustomAlertWithTitle:@"Passcode Saved!"
+                                alertImage:[UIImage imageNamed:@"ios_tick_popup_icon.png"]
+                                  alertMsg:@"Please make sure you remember your 4 digit passcode."
+                                    andTag:333];
+            
+            //[self showPassCodeSaveSucessAlertView];
         }
         else
         {
@@ -158,25 +254,26 @@
         
     }
 }
+*/
 
--(void) btnSubmitClick
+-(void) submittPasswordAndGotoMyFolderView
 {
      NSString *savedPass = [ApplicationData offlineObjectForKey:SAVED_PASSCODE];
     
      if([self.hiddenText.text isEqualToString:savedPass])
      {
-         [self dismissViewControllerAnimated:YES completion:^{
-             [self.delegate viewShowingAfterCorrectPassword];
-         }];
+         [ApplicationData sharedInstance].isReloadMyFolderData = YES;
+         [self performSegueWithIdentifier:@"PASSCODE_TO_MYFOLDER" sender:self];
      }
     else
     {
-        [[ApplicationData sharedInstance]showAlert:@"Password is wrong" andTag:0];
+        [ApplicationData sharedInstance].isReloadMyFolderData = NO;
+        [[ApplicationData sharedInstance]showAlert:@"Wrong password" andTag:0];
         [self resetInitialPassView];
     }
 }
 
--(void) showPassCodeSaveSucessAlertView
+-(void) showCustomAlertWithTitle:(NSString*)tile alertImage:(UIImage*)image alertMsg:(NSString*)msgText andTag:(int)tagval
 {
     [self.hiddenText resignFirstResponder];
     
@@ -185,9 +282,10 @@
     self.transparentView.backgroundColor = [UIColor clearColor];
     self.transparentView.allowBlurView  = YES;
     self.transparentView.hideCloseButton = YES;
-    self.transparentView.alertTitle = @"Passcode Saved!";
-    self.transparentView.alertImage = [UIImage imageNamed:@"ios_tick_popup_icon.png"];
-    self.transparentView.alertMessage = @"Please make sure you remember your 4 digit passcode.";
+    self.transparentView.tag = tagval;
+    self.transparentView.alertTitle = tile;
+    self.transparentView.alertImage = image;
+    self.transparentView.alertMessage = msgText;
     [self.transparentView open];
 }
 
@@ -197,10 +295,21 @@
 - (void)RKMTransViewDidClosed
 {
     NSLog(@"Did close");
-    //[ApplicationData sharedInstance].isPasscodeSaved = YES;
-    [self dismissViewControllerAnimated:YES completion:^{
-        [self.delegate viewShowingAfterCorrectPassword];
-    }];
+    if(self.transparentView.tag == 331)
+    {
+        //close welcom alert
+         NSString *SecondTimeRun = @"running_second_time";
+        [ApplicationData setOfflineObject:SecondTimeRun forKey:FIRST_RUN];
+        [self showViewAfterWelcomerScreen];
+    }
+    else if(self.transparentView.tag == 333)
+    {
+        //manually push
+        MyFolderViewController *myFolder = [self.storyboard
+                                            instantiateViewControllerWithIdentifier:@"MyFolderViewController"];
+        [ApplicationData sharedInstance].isReloadMyFolderData = YES;
+        [self.navigationController pushViewController:myFolder animated:YES];
+    }
 }
 
 -(void)createEmptyRoundLabel:(UILabel*)myLabel
@@ -262,6 +371,7 @@
         if (charCounter<5)
         {
             _chk=false;
+            self.btnSave.enabled = NO;
         }
         
     }
@@ -294,6 +404,8 @@
             
             charCounter=4;
             _chk=true;
+            self.btnSave.enabled = YES;
+            
         }
         else if(charCounter>4 || _chk==true)
         {
@@ -307,6 +419,21 @@
         }
     }
     return YES;
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    NSLog(@"RECIEVE SEGUE IDENTIFIER ON PREPARE : %@",segue.identifier);
+    
+    if ([segue.identifier isEqualToString:@"PASSCODE_TO_LINK"])
+    {
+        LinkClaimViewController *controller = [segue destinationViewController];
+        controller.showViewFor = @"RESETCODE";
+    }
+    else if([segue.identifier isEqualToString:@"PASSCODE_TO_MYFOLDER"])
+    {
+        
+    }
 }
 
 @end

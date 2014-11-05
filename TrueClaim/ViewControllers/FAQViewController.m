@@ -27,6 +27,9 @@
 
 -(void) viewWillAppear:(BOOL)animated
 {
+    [ApplicationData sharedInstance].isDisply_PassCodeScreen = YES;
+    [ApplicationData sharedInstance].isReloadMyFolderData = NO;
+    
     self.navigationController.navigationBarHidden = NO;
     self.navigationItem.title = @"FAQ'S";
     self.navigationController.navigationBar.tintColor = THEME_RED_COLOR;
@@ -67,8 +70,10 @@
         [self.navigationController popViewControllerAnimated:YES];
         return;
     }
-    
-    [self dismissViewControllerAnimated:YES completion:nil];
+    else if ([[ApplicationData sharedInstance].navigateFromView isEqualToString:@"TabView"])
+    {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
     
 }
 

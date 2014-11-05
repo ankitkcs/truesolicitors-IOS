@@ -54,6 +54,9 @@
     //self.tabBarController.tabBar.hidden = YES;
     //self.navigationController.navigationBarHidden = YES;
     
+    [ApplicationData sharedInstance].isDisply_PassCodeScreen = YES;
+    [ApplicationData sharedInstance].isReloadMyFolderData = NO;
+    
     self.selDocDetail = [ApplicationData sharedInstance].selectedDocDetail;
     self.selClaim = [ApplicationData sharedInstance].selectedClaim;
     
@@ -75,7 +78,7 @@
             // show next button if readed and not action performed
             //self.navigationItem.rightBarButtonItems = @[nextBtn,shareBarBtn];
             
-            NSArray *docTypeArr = [[MyDatabaseManager sharedManager]  allRecordsSortByAttribute:kDocTypeDocCode where:kDocTypeDocCode contains:self.selDocDetail.type_code byAcending:YES fromTable:TBL_DOCUMENT_TYPE];
+            NSArray *docTypeArr = [[MyDatabaseManager sharedManager]  allRecordsSortByAttribute:kDocTypeDocCode where:kDocTypeDocCode contains:self.selDocDetail.type_code byAcending:YES fromTable:TBL_DOCUMENT_TYPE isSame:YES];
             
             NSLog(@"doc Detail Find : %@ And Total Count : %lu",docTypeArr,(unsigned long)docTypeArr.count);
             DocumentsType *selDocTypeDetail = [docTypeArr objectAtIndex:0];
@@ -130,12 +133,12 @@
 }
 
 
-- (IBAction)btnBackTapped:(id)sender
+- (void)btnBackTapped:(id)sender
 {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (IBAction)btnShareTapped:(id)sender
+- (void)btnShareTapped:(id)sender
 {
     NSString *initalTextString = [NSString stringWithFormat:@"%@",
                                   self.msgTextView.text];
@@ -145,7 +148,7 @@
     [self presentViewController:activityViewController animated:YES completion:nil];
 }
 
-- (IBAction)btnNextTapped:(id)sender
+- (void)btnNextTapped:(id)sender
 {
     // get selected documnet detail from document table
     
@@ -159,7 +162,7 @@
          // go to agree screen directly
          //[self performSegueWithIdentifier:@"LETTER_READ_TO_CONFIRM" sender:self];
         
-        NSArray *docTypeArr = [[MyDatabaseManager sharedManager]  allRecordsSortByAttribute:kDocTypeDocCode where:kDocTypeDocCode contains:self.selDocDetail.type_code byAcending:YES fromTable:TBL_DOCUMENT_TYPE];
+        NSArray *docTypeArr = [[MyDatabaseManager sharedManager]  allRecordsSortByAttribute:kDocTypeDocCode where:kDocTypeDocCode contains:self.selDocDetail.type_code byAcending:YES fromTable:TBL_DOCUMENT_TYPE isSame:YES];
         
         NSLog(@"doc Detail Find : %@ And Total Count : %lu",docTypeArr,(unsigned long)docTypeArr.count);
         
@@ -268,7 +271,9 @@
     
     if(change)
     {
-        todayDate = [ApplicationData getStringFromDate:[NSDate date] inFormat:DATETIME_FORMAT_DB];
+        todayDate = [ApplicationData getStringFromDate:[NSDate date]
+                                              inFormat:DATETIME_FORMAT_DB
+                                                WithAM:NO];
     }
     else
     {
@@ -294,7 +299,9 @@
         self.webApi = [[WebApiRequest alloc] init];
         [ApplicationData sharedInstance].tc_auth_token = self.selClaim.auth_token;
         
-        NSString *readDate = [ApplicationData getStringFromDate:[NSDate date] inFormat:DATETIME_FORMAT_DB];
+        NSString *readDate = [ApplicationData getStringFromDate:[NSDate date]
+                                                       inFormat:DATETIME_FORMAT_DB
+                                                         WithAM:NO];
         
         NSDictionary *reqDict = @{@"app_date_read_at": readDate};
         [self.webApi PostDataWithParameter:reqDict.mutableCopy forDelegate:self andTag:tActionRead forRequstType:reqForReadDocByGUID serviceType:WS_PUT];

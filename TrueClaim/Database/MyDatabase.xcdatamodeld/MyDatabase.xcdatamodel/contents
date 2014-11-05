@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="12F45" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="14A389" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="DocumentDetail" representedClassName="DocumentDetail" syncable="YES">
         <attribute name="app_date_actioned_at" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="app_date_read_at" optional="YES" attributeType="String" syncable="YES"/>
@@ -28,6 +28,7 @@
         <attribute name="auth_token" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="claim_number" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="created_at" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="customer_date_of_birth" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="customer_name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="linked_at" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
@@ -53,12 +54,12 @@
         <attribute name="password" optional="YES" attributeType="Boolean" syncable="YES"/>
     </entity>
     <elements>
-        <element name="DocumentDetail" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="DocumentsType" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="FAQDetail" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LinkToClaim" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="MassegeDetail" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="RecordTable" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Settings" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="DocumentDetail" positionX="0" positionY="0" width="128" height="165"/>
+        <element name="DocumentsType" positionX="0" positionY="0" width="128" height="120"/>
+        <element name="FAQDetail" positionX="0" positionY="0" width="128" height="75"/>
+        <element name="LinkToClaim" positionX="0" positionY="0" width="128" height="178"/>
+        <element name="MassegeDetail" positionX="0" positionY="0" width="128" height="195"/>
+        <element name="RecordTable" positionX="0" positionY="0" width="128" height="105"/>
+        <element name="Settings" positionX="0" positionY="0" width="128" height="60"/>
     </elements>
 </model>

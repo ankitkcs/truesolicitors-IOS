@@ -13,6 +13,7 @@
 
 @dynamic account_id;
 @dynamic claim_number;
+@dynamic customer_date_of_birth;
 @dynamic account_name;
 @dynamic customer_name;
 @dynamic accident_date;

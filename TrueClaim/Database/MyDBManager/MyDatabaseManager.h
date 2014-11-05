@@ -11,7 +11,7 @@
 - (NSArray *)allRecordsSortByAttribute:(NSString*)attribute byAcending:(BOOL)yn fromTable:(NSString*)tableName;
 
 //- (NSArray *)allRecordsSortByAttribute:(NSString*)attribute where:(NSString*)key contains:(id)value;
-- (NSArray *)allRecordsSortByAttribute:(NSString*)attribute where:(NSString*)key contains:(id)value byAcending:(BOOL)yn fromTable:(NSString*)tableName;
+- (NSArray *)allRecordsSortByAttribute:(NSString*)attribute where:(NSString*)key contains:(id)value byAcending:(BOOL)yn fromTable:(NSString*)tableName isSame:(BOOL)sameVal;
 
 // global insert Method
 - (id) insertRecordInTable:(NSString*)tableName withDataDict:(NSDictionary*)recordAttributes;

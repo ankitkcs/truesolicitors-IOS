@@ -41,6 +41,7 @@
     self.view.backgroundColor = APP_BACKGROUND_IMAGE;
     self.lblLink.text = @"To get the most from this app \n please link your claim below.";
 }
+
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:YES];
@@ -53,15 +54,6 @@
     self.allClaims = [[MyDatabaseManager sharedManager] allRecordsSortByAttribute:nil byAcending:YES fromTable:TBL_LINK_CLAIM];
     
     NSLog(@"ALL CLAIMS : %@",self.allClaims);
-    
-    if([self.allClaims count] == 0)
-    {
-        [self setUpViewForFirstTimeUser];
-    }
-    else
-    {
-        [self setupViewForRegularUser];
-    }
     
     // customize footer buttons back view
     
@@ -79,6 +71,15 @@
     self.btnBackView.BordersColor = Rgb2UIColor(200, 200, 200);
     self.btnBackView.BordersWidth = 1;
     
+    
+    if([self.allClaims count] == 0)
+    {
+        [self setUpViewForFirstTimeUser];
+    }
+    else
+    {
+        [self setupViewForRegularUser];
+    }
 }
 
 # pragma mark -
@@ -104,9 +105,6 @@
     if(!IS_IPHONE_5)
     {
         self.logoBackView.frame = CGRectMake(0, 130, self.logoBackView.frame.size.width, self.logoBackView.frame.size.height);
-        
-        //self.tblButtonsView.frame = CGRectMake(20, (self.logoBackView.frame.origin.y + self.logoBackView.frame.size.height) + 10, self.tblButtonsView.frame.size.width,155);
-        //self.btnBackView.frame = CGRectMake(0, (self.tblButtonsView.frame.origin.y + self.tblButtonsView.frame.size.height) + 20, self.btnBackView.frame.size.width,self.btnBackView.frame.size.height);
     }
     else
     {
@@ -126,9 +124,9 @@
         
         CGFloat tblHeight = (80 * [self.allClaims count]) + 175;
         
-        if(tblHeight > 300)
+        if(tblHeight > 240)
         {
-            tblHeight = 300;
+            tblHeight = 240;
         }
         
         self.tblClaimsView.frame = CGRectMake(20, 120 , self.tblClaimsView.frame.size.width, tblHeight);
@@ -251,26 +249,86 @@
 {
     [ApplicationData sharedInstance].navigateFromView = @"TabView";
     
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    self.selCellIndex = indexPath.row;
     
-    if(tableView == self.tblClaimsView)
-    {
-            LinkToClaim *claim = [self.allClaims objectAtIndex:indexPath.row];
-            NSLog(@"SELECTED CLAIM AUTH TOKEN ON HOME: %@",claim.auth_token);
-            [ApplicationData sharedInstance].selectedClaim = claim;
-            [self performSegueWithIdentifier:@"TabControllerSegueIdentifier" sender:self];
-    }
+    [self performSegueWithIdentifier:@"HOME_TO_TABVIEW" sender:self];
+
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 -(IBAction)btnLinkClicked:(id)sender
 {
    // open Link Claim view
+    NSLog(@"btn Link Click HOME_TO_LINK");
+    [self performSegueWithIdentifier:@"HOME_TO_LINK" sender:self];
 }
 
 -(IBAction)btnReportClicked:(id)sender
 {
     // open mail view
+    NSLog(@"btn Report Click");
+    
+    MFMailComposeViewController *mailComposeViewController = [[MFMailComposeViewController alloc] init];
+    
+    // only on iOS < 3
+    //if ([MFMailComposeViewController canSendMail] == NO)
+    //  [self launchMailApp]; // you need to
+    
+    mailComposeViewController.mailComposeDelegate = self;
+    
+    [mailComposeViewController setToRecipients:[NSArray arrayWithObjects:@"office@true.co.uk",nil]];
+    
+    [mailComposeViewController setSubject:@"Enquiry from the TRUE website"];
+    
+    // [mailComposeViewController setMessageBody:@"I invite you to join me on clark's callboard.It's a website and mobile app where i post my availability online as well as track the availability of my colleagues.It's easy,free to join, and designed especially for our industry.You can click the link to open the registration page http://demo.inextsolutions.com/clark/register.html or check out furthur information and view a full demonstration at: http://clarkscallboard.com/clarkscallboard.com/Parked_Page.html" isHTML:YES];
+    
+    
+    mailComposeViewController.delegate = self;
+    mailComposeViewController.title = @"Report Claim";
+    mailComposeViewController.navigationBar.tintColor = THEME_RED_COLOR;
+    
+    [self.navigationController presentViewController:mailComposeViewController animated:YES completion:nil];
+
 }
+
+- (void) mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error
+{
+    // Notifies users about errors associated with the interface
+    switch (result)
+    {
+        case MFMailComposeResultCancelled:
+            NSLog(@"Result: canceled");
+            break;
+        case MFMailComposeResultSaved:
+            NSLog(@"Result: saved");
+            break;
+        case MFMailComposeResultSent:
+            NSLog(@"Result: sent");
+            break;
+        case MFMailComposeResultFailed:
+            NSLog(@"Result: failed");
+            break;
+        default:
+            NSLog(@"Result: not sent");
+            break;
+    }
+    
+    [controller dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+-(IBAction)shareBntClick:(id)sender
+{
+    UIImage *logoImg = [UIImage imageNamed:@"ios_true_logo.png"];
+    
+    NSString *linkStr = @"link to appstore for download true claim";
+    
+    NSString *initalTextString = [NSString stringWithFormat:@"%@",linkStr];
+    
+    UIActivityViewController *activityViewController =[[UIActivityViewController alloc] initWithActivityItems:@[logoImg,initalTextString] applicationActivities:nil];
+    [self presentViewController:activityViewController animated:YES completion:nil];
+}
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -278,9 +336,33 @@
     // Dispose of any resources that can be recreated.
 }
 
+-(IBAction)btnAboutClick:(id)sender
+{
+     [self performSegueWithIdentifier:@"HOME_TO_ABOUT" sender:self];
+}
+
+-(IBAction)btnFAQClicked:(id)sender
+{
+     [self performSegueWithIdentifier:@"HOME_TO_FAQ" sender:self];
+}
+
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     NSLog(@"RECIEVE SEGUE IDENTIFIER ON PREPARE : %@",segue.identifier);
+    
+    if ([segue.identifier isEqualToString:@"HOME_TO_ABOUT"])
+    {
+        AboutUsViewController *controller = [segue destinationViewController];
+        controller.displayHtmlfile = @"ABOUT";
+    }
+    else if([segue.identifier isEqualToString:@"HOME_TO_TABVIEW"])
+    {
+        LinkToClaim *claim = [self.allClaims objectAtIndex: self.selCellIndex];
+        NSLog(@"SELECTED CLAIM AUTH TOKEN ON HOME: %@",claim.auth_token);
+        [ApplicationData sharedInstance].selectedClaim = claim;
+
+    }
+
 }
 
 

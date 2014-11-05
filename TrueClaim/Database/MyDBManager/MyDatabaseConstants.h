@@ -25,6 +25,7 @@
 
 #define kAccountID @"account_id"
 #define kClaimNumber @"claim_number"
+#define kClaimBirthDate @"customer_date_of_birth"
 #define kAccountName @"account_name"
 #define kCustomerName @"customer_name"
 #define kAccidentDate @"accident_date"

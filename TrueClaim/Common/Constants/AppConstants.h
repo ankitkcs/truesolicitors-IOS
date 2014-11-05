@@ -37,6 +37,7 @@
 #define MAX_PRODUCT_QUANTITY 99
 
 #define SAVED_PASSCODE @"savedPasscode"
+#define FIRST_RUN @"appFirstRun"
 
 //********************** APP THEME COLORS *******************//
 

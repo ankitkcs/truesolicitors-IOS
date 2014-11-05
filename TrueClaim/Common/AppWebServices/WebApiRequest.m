@@ -170,7 +170,7 @@
                 {
                     NSString *stringData = [[NSString alloc] initWithData:receivedData encoding:NSASCIIStringEncoding];
                     
-                    NSLog(@"Ranjit Response : '%@'",stringData);
+                   // NSLog(@"Ranjit Response : '%@'",stringData);
                     
                     NSDictionary *responseJSON = [stringData JSONValue];
                     

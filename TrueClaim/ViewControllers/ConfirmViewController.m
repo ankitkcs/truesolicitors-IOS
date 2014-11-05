@@ -54,7 +54,7 @@
     
     self.selDocDetail = [ApplicationData sharedInstance].selectedDocDetail;
     
-    NSArray *docTypeArr = [[MyDatabaseManager sharedManager]  allRecordsSortByAttribute:kDocTypeDocCode where:kDocTypeDocCode contains:self.selDocDetail.type_code byAcending:YES fromTable:TBL_DOCUMENT_TYPE];
+    NSArray *docTypeArr = [[MyDatabaseManager sharedManager]  allRecordsSortByAttribute:kDocTypeDocCode where:kDocTypeDocCode contains:self.selDocDetail.type_code byAcending:YES fromTable:TBL_DOCUMENT_TYPE isSame:YES];
     
     NSLog(@"doc Detail Find : %@ And Total Count : %lu",docTypeArr,(unsigned long)docTypeArr.count);
     
@@ -198,7 +198,10 @@
 {
     self.selDocDetail = [ApplicationData sharedInstance].selectedDocDetail;
     NSString *readDate = self.selDocDetail.app_date_read_at;
-    NSString *actionDate = [ApplicationData getStringFromDate:[NSDate date] inFormat:DATETIME_FORMAT_DB];
+    NSString *actionDate = [ApplicationData getStringFromDate:[NSDate date]
+                                                     inFormat:DATETIME_FORMAT_DB
+                                                       WithAM:NO];
+    
     NSString *reqForConfirm = [NSString stringWithFormat:@"documents/%@",self.selDocDetail.guid];
     
     if([ApplicationData ConnectedToInternet])

@@ -29,19 +29,38 @@
     
     NSLog(@"SAVED UUID : %@",[ApplicationData offlineObjectForKey:DEVICE_UUID]);
     
-    // Override point for customization after application launch.
-//    UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-//    HomeViewController *introViewController = [storyBoard instantiateViewControllerWithIdentifier:@"HomeViewController"];
-//    
-//    self.navCon = [[UINavigationController alloc] initWithRootViewController:introViewController];
-//    [self.window setRootViewController:self.navCon];
-//    
-//    [ApplicationData sharedInstance].isFirstTime = YES;
-//    [ApplicationData sharedInstance].isDisply_PassCodeScreen = YES;
+    if([ApplicationData offlineObjectForKey:FIRST_RUN] == nil)
+    {
+        NSString *FirstTimeRun = @"running_first_time";
+        [ApplicationData setOfflineObject:FirstTimeRun forKey:FIRST_RUN];
+    }
 
+    // Override point for customization after application launch.
+    //    UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    //    HomeViewController *introViewController = [storyBoard instantiateViewControllerWithIdentifier:@"HomeViewController"];
+    //
+    //    self.navCon = [[UINavigationController alloc] initWithRootViewController:introViewController];
+    //    [self.window setRootViewController:self.navCon];
+    //
+    //    [ApplicationData sharedInstance].isFirstTime = YES;
+    //    [ApplicationData sharedInstance].isDisply_PassCodeScreen = YES;
+    
+    NSLog(@"DIRECTORY FOUND HERE : %@", [self applicationDocumentsDirectory]);
+    
+    //DIRECTORY FOUND HERE : /Users/krish/Library/Application Support/iPhone Simulator/
+    
     return YES;
 }
-							
+
+
+- (NSString *)applicationDocumentsDirectory
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *basePath = [paths firstObject];
+    return basePath;
+}
+
+
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

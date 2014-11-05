@@ -13,11 +13,8 @@
 #import "RKMTransView.h"
 #import "MyDatabaseManager.h"
 #import "DocumentDetail.h"
-#import "PasscodePopController.h"
 
-//#import "RKPopUpAlertView.h"
-
-@interface MyFolderViewController () <passDelegate,PassCodePopDelegate>
+@interface MyFolderViewController ()<UITabBarControllerDelegate,passDelegate>
 
 @end
 
@@ -41,6 +38,19 @@
     [btnBack addTarget:self action:@selector(goBackToHome) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *barBackButton = [[UIBarButtonItem alloc] initWithCustomView:btnBack];
     self.navigationItem.leftBarButtonItem = barBackButton;
+    
+    if([ApplicationData sharedInstance].isDisply_PassCodeScreen)
+    {
+        self.tabBarController.delegate = self;
+    }
+}
+
+-(void) tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController
+{
+    if ([viewController isKindOfClass:[UINavigationController class]])
+    {
+        [(UINavigationController *)viewController popToRootViewControllerAnimated:NO];
+    }
 }
 
 -(void)viewWillAppear:(BOOL)animated
@@ -51,19 +61,13 @@
     self.navigationItem.title = @"MY FOLDER";
     self.tabBarItem.title = @"My Folder";
     
-    //getSavedPassword
-    NSString *savPass = [ApplicationData offlineObjectForKey:SAVED_PASSCODE];
-    if([savPass isEqualToString:@""] || savPass == nil)
-    {
-        [self showTransparentPopUpAlertViewForWelcomeToFolder];
-    }
-    else
-    {
-        [self showTransparentPopUpAlertWithPassCodeScreen];
-    }
     self.selClaim = [ApplicationData sharedInstance].selectedClaim;
+    
+    if([ApplicationData sharedInstance].isReloadMyFolderData)
+    {
+        [self sendRequestForGetAllDocuments];
+    }
 }
-
 
 -(void) sendRequestForGetAllDocuments
 {
@@ -106,51 +110,15 @@
 }
 
 
-
--(void) showTransparentPopUpAlertViewForWelcomeToFolder
-{
-    self.transparentView = [[RKMTransView alloc] init];
-    self.transparentView.delegate = self;
-    self.transparentView.backgroundColor = [UIColor clearColor];
-    self.transparentView.allowBlurView  = YES;
-    self.transparentView.hideCloseButton = YES;
-    
-    self.transparentView.alertTitle =  @"Welcome to My Folder";
-    self.transparentView.alertImage =  [UIImage imageNamed:@"ios_folder_popup_icon.png"];
-    self.transparentView.alertMessage = @"This is where you can store, view and respond to the documnets we send you.";
-    [self.transparentView open];
-}
-
--(void) showTransparentPopUpAlertWithPassCodeScreen
-{
-    PasscodePopController *passAlert = [[PasscodePopController alloc] init];
-    passAlert.delegate = self;
-    passAlert.passcodeText = [ApplicationData offlineObjectForKey:SAVED_PASSCODE];
-    [passAlert Open];
-}
-
--(void) PopUpCloseWithPassText:(NSString *)passcode
-{
-    NSLog(@"Entered Passcode In MyFolder %@",passcode);
-    [self sendRequestForGetAllDocuments];
-}
-
 - (void)RKMTransViewDidClosed
 {
     NSLog(@"Did close");
-    [self showPassCodeScreen];
-}
-
--(void) showPassCodeScreen
-{
-    PassCodeViewController *passCodeVC = [self.storyboard instantiateViewControllerWithIdentifier:@"TempPassCodeVC"];
-    passCodeVC.delegate = self;
-    [self presentViewController:passCodeVC animated:NO completion:nil];
+    //[self showPassCodeScreen];
 }
 
 -(void) viewShowingAfterCorrectPassword
 {
-    [self sendRequestForGetAllDocuments];
+   [self sendRequestForGetAllDocuments];
 }
 
 -(void) goBackToHome
@@ -158,19 +126,10 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
--(void)refreshTableData
+-(int)getDataFromLocalDataBase
 {
     self.allDocuments  = [[[MyDatabaseManager sharedManager] allRecordsSortByAttribute:kDocCreatedAt byAcending:NO fromTable:TBL_DOCUMENT_DETAIL] mutableCopy];
-    
-    if(self.allDocuments.count == 0)
-    {
-        self.tblDocumnets.hidden = YES;
-    }
-    else
-    {
-         self.tblDocumnets.hidden = NO;
-        [self.tblDocumnets reloadData];
-    }
+    return self.allDocuments.count;
 }
 
 # pragma mark -
@@ -263,40 +222,55 @@
                 if([[responseData valueForKey:@"response_message"] isEqualToString:@"success"])
                 {
                     NSArray *docsArray = [responseData valueForKey:@"documents"];
-                    
-                    // get all doc from databse
-                    NSArray *allDocOfDB = [[[MyDatabaseManager sharedManager] allRecordsSortByAttribute:kDocCreatedAt byAcending:NO fromTable:TBL_DOCUMENT_DETAIL] mutableCopy];
-                    
-                    NSLog(@"COUNT EXIXST DOC IN DB : %lu",(unsigned long)allDocOfDB.count);
-                    
-                    if(allDocOfDB.count == 0)
-                    {
-                        for(int j=0; j < docsArray.count; j++)
-                        {
-                            NSDictionary *docDict = [docsArray objectAtIndex:j];
-                            //insert
-                            [self insertDocumnet:docDict];
-                            NSLog(@"**********Inserte First Time");
-                        }
-                    }
-                    else
-                    {
-                        [self checkExistDataForUpdateAndInsertWithDBdata:allDocOfDB
-                                                               andWSdata:docsArray];
-                    }
 
-                    [self refreshTableData];
-                    [ProgressHudHelper hideLoadingHud];
+                        
+                        // get all doc from databse
+                        NSArray *allDocOfDB = [[[MyDatabaseManager sharedManager] allRecordsSortByAttribute:kDocCreatedAt byAcending:NO fromTable:TBL_DOCUMENT_DETAIL] mutableCopy];
+                        
+                        NSLog(@"COUNT EXIXST DOC IN DB : %lu",(unsigned long)allDocOfDB.count);
+                        
+                        if(allDocOfDB.count == 0)
+                        {
+                            for(int j=0; j < docsArray.count; j++)
+                            {
+                                NSDictionary *docDict = [docsArray objectAtIndex:j];
+                                //insert
+                                [self insertDocumnet:docDict];
+                                NSLog(@"**********Inserte First Time");
+                            }
+                        }
+                        else
+                        {
+                            [self checkExistDataForUpdateAndInsertWithDBdata:allDocOfDB
+                                                                   andWSdata:docsArray];
+                        }
                     
-                    // call documnet type id
-                    [self sendRequestForGetAllDocumentsType];
+                        [ProgressHudHelper hideLoadingHud];
                     
+                        int totalFromDB = [self getDataFromLocalDataBase];
+                    
+                        if(totalFromDB == 0)
+                        {
+                            self.containerView.hidden = NO;
+                            self.tblDocumnets.hidden = YES;
+                        }
+                        else
+                        {
+                            self.containerView.hidden = YES;
+                            self.tblDocumnets.hidden = NO;
+                            
+                            [self.tblDocumnets reloadData];
+                
+                            // call documnet type id
+                            [self sendRequestForGetAllDocumentsType];
+                        }
                 }
                 else
                 {
                     [ProgressHudHelper hideLoadingHud];
                     [[ApplicationData sharedInstance] showAlert:[responseData valueForKey:@"response_message"] andTag:0];
                 }
+                
             }
             else if (Tag == tGetDocType)
             {
@@ -307,7 +281,7 @@
                 {
                     NSArray *docsArray = [responseData valueForKey:@"document_types"];
                     
-                    NSLog(@"Total Documnets Type : %ld",docsArray.count);
+                    NSLog(@"Total Documnets Type : %ld",(unsigned long)docsArray.count);
                     
                     for(int j=0; j < docsArray.count; j++)
                     {
@@ -363,7 +337,9 @@
 
 -(void) insertDocumnet:(NSDictionary*) docsDict
 {
-     NSString *todayDate = [ApplicationData getStringFromDate:[NSDate date] inFormat:DATETIME_FORMAT_DB];
+     NSString *todayDate = [ApplicationData getStringFromDate:[NSDate date]
+                                                     inFormat:DATETIME_FORMAT_DB
+                                                       WithAM:NO];
     
     NSString *guid = [docsDict valueForKey:kDocGuid];
     NSString *name = [docsDict valueForKey:kDocName];
@@ -400,7 +376,9 @@
     
     //for read later update here according to read action on letter read page;
     
-    NSString *todayDate = [ApplicationData getStringFromDate:[NSDate date] inFormat:DATETIME_FORMAT_DB];
+    NSString *todayDate = [ApplicationData getStringFromDate:[NSDate date]
+                                                    inFormat:DATETIME_FORMAT_DB
+                                                      WithAM:NO];
     NSString *guid = [docsDict valueForKey:kDocGuid];
     NSString *name = [docsDict valueForKey:kDocName];
     NSString *app_date_read_at = [docsDict valueForKey:kDocAppDateReadAt];
@@ -436,7 +414,9 @@
 -(void) insertDocumnetType:(NSDictionary*) docsDict
 {
     
-    NSString *todayDate = [ApplicationData getStringFromDate:[NSDate date] inFormat:DATETIME_FORMAT_DB];
+    NSString *todayDate = [ApplicationData getStringFromDate:[NSDate date]
+                                                    inFormat:DATETIME_FORMAT_DB
+                                                      WithAM:NO];
     
     NSString *action_prompt = [docsDict valueForKey:kDocTypeActionPrompt];
     NSString *name = [docsDict valueForKey:kDocTypeName];
@@ -461,10 +441,7 @@
     {
         NSLog(@"Documnet Inserted");
     }
-
 }
-
-
 
 /*
 -(void) insertDocumnetsToLocalDataBaseFromData:(NSMutableArray *)responseData
@@ -507,7 +484,7 @@
             }
         }
         
-        [self refreshTableData];
+        [self getDataFromLocalDataBase];
         [ProgressHudHelper hideLoadingHud];
 }
 */

@@ -9,12 +9,19 @@
 #import <UIKit/UIKit.h>
 #import "NZLabel.h"
 #import "LinkToClaim.h"
+#import <MessageUI/MessageUI.h>
 
 //@protocol homeViewDelegate <NSObject>
 //-(void) SelectedClaim:(LinkToClaim*)claim;
 //@end
 
 @interface HomeRegularViewController : UIViewController
+<MFMailComposeViewControllerDelegate,
+MFMessageComposeViewControllerDelegate,
+UINavigationControllerDelegate
+>
+
+@property(nonatomic,assign) NSUInteger selCellIndex;
 
 @property(nonatomic,weak) IBOutlet UILabel *lblWelocome;
 @property(nonatomic,weak) IBOutlet NZLabel *lblLink;
@@ -41,6 +48,9 @@
 //
 - (IBAction)btnLinkClicked:(id)sender;
 - (IBAction)btnReportClicked:(id)sender;
-//- (IBAction)btnFAQClicked:(id)sender;
+
+
+-(IBAction)btnAboutClick:(id)sender;
+- (IBAction)btnFAQClicked:(id)sender;
 
 @end

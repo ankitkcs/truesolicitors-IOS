@@ -23,11 +23,27 @@
 
 -(void) viewWillAppear:(BOOL)animated
 {
+    
+    NSLog(@"SHOW>>>>>HTML %@",self.displayHtmlfile);
+    
    self.navigationController.navigationBarHidden = NO;
-   self.navigationItem.title = @"ABOUT US";
    self.navigationController.navigationBar.tintColor = THEME_RED_COLOR;
     
-    [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"aboutTrue" ofType:@"html"]isDirectory:NO]]];
+   if([self.displayHtmlfile isEqualToString:@"ABOUT"])
+   {
+       self.navigationItem.title = @"ABOUT US";
+       [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"aboutTrue" ofType:@"html"]isDirectory:NO]]];
+   }
+   else if([self.displayHtmlfile isEqualToString:@"WHY"])
+   {
+       self.navigationItem.title = @"WHY TRUE";
+       [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"whyTrue" ofType:@"html"]isDirectory:NO]]];
+   }
+   else if([self.displayHtmlfile isEqualToString:@"INJURY"])
+   {
+       self.navigationItem.title = @"INJURY TYPES";
+       [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"injuryTypes" ofType:@"html"]isDirectory:NO]]];
+   }
 }
 
 - (void)didReceiveMemoryWarning

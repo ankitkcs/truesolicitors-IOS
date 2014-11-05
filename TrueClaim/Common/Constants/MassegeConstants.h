@@ -15,6 +15,8 @@
 
 #define CLAIM_LINKED_SUCCESS @"You have successfully linked your Claim,number %@ to this app.\n\n You can now track the current staus of your TRUE Claim."
 
+#define RESET_PASSCODE @"Please press continue with OK to re create your 4 digit passcode"
+
 //********************** VALIDATION MESSAGES *******************//
 
 #define ENTER_VERIFICATION_CODE @"Please enter Verification code."

@@ -26,7 +26,7 @@
     return [self allObjectsFromTable:tableName sortDescriptor:sortDescriptor];
 }
 
-- (NSArray *)allRecordsSortByAttribute:(NSString*)attribute where:(NSString*)key contains:(id)value byAcending:(BOOL)yn fromTable:(NSString*)tableName
+- (NSArray *)allRecordsSortByAttribute:(NSString*)attribute where:(NSString*)key contains:(id)value byAcending:(BOOL)yn fromTable:(NSString*)tableName isSame:(BOOL)sameVal
 {
     NSSortDescriptor *sortDescriptor = nil;
     
@@ -34,12 +34,38 @@
     
     if([tableName isEqualToString:TBL_MASSEGE_DETAIL])
     {
-         return [self allObjectsFromTable:tableName where:key contains:value sortDescriptor:sortDescriptor];
+        if(sameVal)
+        {
+            return [self allObjectsFromTable:tableName where:key equals:value sortDescriptor:sortDescriptor];
+        }
+        else
+        {
+            return [self allObjectsFromTable:tableName where:key contains:value sortDescriptor:sortDescriptor];
+        }
     }
     else  if([tableName isEqualToString:TBL_DOCUMENT_TYPE])
     {
-        return [self allObjectsFromTable:tableName where:key equals:value sortDescriptor:sortDescriptor];
+        if(sameVal)
+        {
+            return [self allObjectsFromTable:tableName where:key equals:value sortDescriptor:sortDescriptor];
+        }
+        else
+        {
+            return [self allObjectsFromTable:tableName where:key contains:value sortDescriptor:sortDescriptor];
+        }
     }
+    else  if([tableName isEqualToString:TBL_LINK_CLAIM])
+    {
+        if(sameVal)
+        {
+            return [self allObjectsFromTable:tableName where:key equals:value sortDescriptor:sortDescriptor];
+        }
+        else
+        {
+            return [self allObjectsFromTable:tableName where:key contains:value sortDescriptor:sortDescriptor];
+        }
+    }
+
     
     return nil;
 }
