@@ -14,6 +14,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     
+    // Hello Git
+    
     //get and save the uuid
 //    if([ApplicationData sharedInstance].deviceUUID == nil)
 //    {
